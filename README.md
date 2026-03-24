@@ -1,0 +1,1 @@
+Jeu de carte en multijoueur en ligne, développé en JS avec NodeJS, Socket.IO, React, Express et Vite dans le cadre du séminaire de développement appliqué aux jeux vidéo de EFFICOM.
