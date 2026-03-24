@@ -1,7 +1,5 @@
-import { CardType, ModifierKind, FLIP_SEVEN_BONUS } from '../constants.js'
-import { isBust } from './bust.js'
-import { isFlipSeven } from './flip7.js'
-import { filterToNumberCards, filterToModifierCards } from '../utils/utils.js'
+import {FLIP_SEVEN_BONUS, ModifierKind} from '../constants.js'
+import {filterToNumberCards, filterToModifierCards} from "../../utils/utils.js";
 
 /**
  * Calcule le score d'un joueur après qu'il ait piochée.
@@ -15,32 +13,38 @@ import { filterToNumberCards, filterToModifierCards } from '../utils/utils.js'
  * 6. Check si Flip 7 (car pas de x2 sur le bonus Flip 7)
  */
 export function computeRoundScore(playerState) {
-    const playersCards = playerState.cards
-    const numberPlayerCards = filterToNumberCards(playersCards)
-    const modifierPlayerCards = filterToModifierCards(playersCards)
     // 1.
-    if (playerState.hasBusted) return 0
+    if (playerState.hasBusted) {
+        playerState.roundScore = 0
+        return
+    }
 
-    // 2.
+    const numberPlayerCards = filterToNumberCards(playerState.cards)
+    const modifierPlayerCards = filterToModifierCards(playerState.cards)
 
-
-    // 3.
     let score = 0
 
+    // 2.
     for (const card of numberPlayerCards) {
         score = score + card.value
     }
     
-    // 4.
+    // 3.
     for (const card of modifierPlayerCards) {
         if (card.value === ModifierKind.X2) continue
         const bonus = parseInt(card.value, 10)
         if (!isNaN(bonus)) score += bonus
     }
     
-    // 5.
+    // 4.
     if (modifierPlayerCards.some(c => c.value === ModifierKind.X2)) {
         score *= 2
     }
+
+    // 5.
+    if (playerState.hasFlipSeven) {
+        score += FLIP_SEVEN_BONUS
+    }
+
     playerState.roundScore = score
 }

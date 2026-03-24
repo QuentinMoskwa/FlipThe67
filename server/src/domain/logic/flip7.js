@@ -1,9 +1,8 @@
-import { CardType, FLIP_SEVEN_COUNT } from '../constants.js'
+import { FLIP_SEVEN_COUNT } from '../constants.js'
+import {filterToNumberCards} from "../../utils/utils.js";
 
 export function isFlipSeven(playersHand) {
-  if (playersHand.length !== FLIP_SEVEN_COUNT) return false
-  
-  return true
+  return filterToNumberCards(playersHand).length === FLIP_SEVEN_COUNT;
 }
 
 // export function isFlipSixSeven(playersHand) {

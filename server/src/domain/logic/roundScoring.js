@@ -1,4 +1,3 @@
-import {FLIP_SEVEN_BONUS } from '../constants.js'
 
 /**
  * Calcule le score de manche d'un joueur.
@@ -20,8 +19,6 @@ export function updateCumulativeScores(playerState, gameState) {
     let playerTotalScoreBeforeTurnCompute = gameState.scores[playerId] ?? 0 
 
     let score = playerState.roundScore + playerTotalScoreBeforeTurnCompute
-    
-    if (playerState.hasFlipSeven) score += FLIP_SEVEN_BONUS
 
     // update score of gameState.scores[playerId]
     gameState.scores[playerId] = score

@@ -1,17 +1,15 @@
-import { CardType } from '../constants.js'
-import { filterToNumberCards, filterToModifierCards } from '../utils/utils.js'
+import { filterToNumberCards } from "../../utils/utils.js";
 
 export function isBust(playerState) {
     const numberPlayerCards = filterToNumberCards(playerState.cards)
 
     const uniqueCards = new Set()
     numberPlayerCards.forEach(card => {
-        uniqueCards.add(card.id)
+        uniqueCards.add(card.value)
     })
 
     if (uniqueCards.size !== numberPlayerCards.length) {
         applyBust(playerState)
-        return
     }
 
 }
@@ -19,9 +17,7 @@ export function isBust(playerState) {
 function applyBust(playerState) {
     if (playerState.hasSecondChance) {
         playerState.hasSecondChance = false
-        return
     }
 
     playerState.hasBusted = true
-    return
 }
