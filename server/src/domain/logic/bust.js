@@ -17,6 +17,7 @@ export function isBust(playerState) {
 function applyBust(playerState) {
     if (playerState.hasSecondChance) {
         playerState.hasSecondChance = false
+        return
     }
 
     playerState.hasBusted = true

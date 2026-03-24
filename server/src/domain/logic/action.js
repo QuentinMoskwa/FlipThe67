@@ -34,7 +34,7 @@ export function applyFreeze(round, targetPlayerId) {
  * Résout un Flip Three : force le joueur ciblé à piocher 3 cartes.
  *
  * Règles de résolution :
- * - On s'arrête avant 3 cartes si le joueur buste ou réussit un Flip 7.
+ * - On s'arrête avant 3 cartes si le joueur bust ou réussit un Flip 7.
  * - Si une ActionCard (Freeze / Flip Three) apparaît parmi les 3 cartes,
  *   elle est mise en attente et résolue APRÈS les 3 tirages (même si bust).
  * - Si un Second Chance apparaît, il est géré immédiatement (donné au joueur
