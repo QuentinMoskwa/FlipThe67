@@ -2,7 +2,7 @@
  * @fileoverview Factories du domaine Flip 7.
  *
  * Chaque entité est modélisée comme une classe.
- * Les constructeurs sont intentionnellement privés — on passe
+ * Les constructeurs sont intentionnellement privés - on passe
  * toujours par les factory functions exportées pour garantir
  * la cohérence des IDs et des valeurs par défaut.
  *
@@ -15,7 +15,7 @@ import {
     ModifierKind,
     RoundPhase,
     GameStatus,
-} from '/server/src/domain/constants.js'
+} from './constants.js'
 
 // ─── Card ─────────────────────────────────────────────────────────────────────
 
@@ -43,7 +43,7 @@ export class Card {
 
 /**
  * Représente un joueur connecté à la partie.
- * socketId est mis à jour à chaque reconnexion — c'est la seule
+ * socketId est mis à jour à chaque reconnexion - c'est la seule
  * propriété de Player qui est mutable après création.
  */
 export class Player {
