@@ -6,6 +6,8 @@ import { Server } from "socket.io";
 import { handleCreateGame } from "./socket/handlers/createGame.js";
 import { handleJoinGame } from "./socket/handlers/joinGame.js";
 import { handleStartGame } from "./socket/handlers/startGame.js";
+import { handlePlayerAction } from "./socket/handlers/playerAction.js";
+import { handleTargetPlayer } from "./socket/handlers/targetPlayer.js";
 
 dotenv.config();
 
