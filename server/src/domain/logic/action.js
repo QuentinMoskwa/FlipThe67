@@ -113,7 +113,7 @@ export function resolveActionCard(round, card, sourcePlayerId, targetPlayerId) {
     const effectiveTargetId = (actives.length === 0 || !targetPlayerId)
         ? sourcePlayerId
         : targetPlayerId
-
+    // MODIFIER LE SWITCH POUR NE PAS APPLY DIRECT SI ACTION FREEZE OU FLIP THREE, ATTENDRE
     switch (card.value) {
         case ActionKind.FREEZE:
             applyFreeze(round, effectiveTargetId)

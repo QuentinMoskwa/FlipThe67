@@ -37,6 +37,8 @@ io.on("connection", (socket) => {
   handleCreateGame(io, socket);
   handleJoinGame(io, socket);
   handleStartGame(io, socket);
+  handlePlayerAction(io, socket);
+  handleTargetPlayer(io, socket);
 });
 
 httpServer.listen(PORT, "0.0.0.0", () => {
