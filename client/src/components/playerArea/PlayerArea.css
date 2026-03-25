@@ -1,0 +1,147 @@
+.player-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    transition: opacity 0.4s ease, filter 0.4s ease;
+}
+
+/* ── État inactif ────────────────────────────────────────────── */
+.player-area.is-inactive {
+    opacity: 0.35;
+    filter: grayscale(0.75);
+    pointer-events: none;
+}
+
+/* ── Stack de cartes (deux lignes) ───────────────────────────── */
+.player-area-cards-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Ligne de cartes — 7 cartes max : 7×72 + 6×6 = 540px */
+.player-area-cards {
+    display: flex;
+    gap: 6px;
+    flex-wrap: nowrap;      /* Pas de retour à la ligne — on contrôle via max-width */
+    justify-content: center;
+    align-items: center;
+    max-width: 540px;       /* Exactement 7 cartes + leurs gaps */
+    overflow-x: auto;       /* Sécurité si > 7 cartes pour une raison inattendue */
+    scrollbar-width: none;
+}
+.player-area-cards::-webkit-scrollbar { display: none; }
+
+/* Modificateurs légèrement réduits pour ne pas déborder */
+.modifiers-row .card-wrapper {
+    transform: scale(0.92);
+    transform-origin: bottom center;
+}
+
+/* Aucune carte — placeholder */
+.player-area-cards-empty {
+    width: 72px;
+    height: 104px;
+    border-radius: 10px;
+    border: 1.5px dashed rgba(126,168,212,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.player-area-cards-empty-icon {
+    font-size: 22px;
+    opacity: 0.3;
+}
+
+/* ── Barre d'info joueur ────────────────────────────────────── */
+.player-area-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px 5px 7px;
+    border-radius: 99px;
+    background: rgba(126,168,212,0.06);
+    border: 1px solid rgba(126,168,212,0.14);
+    height: 36px;
+    box-sizing: border-box;
+    transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+.player-area.is-current-turn .player-area-info {
+    border-color: rgba(126,168,212,0.35);
+    box-shadow:
+            0 0 0 1px rgba(126,168,212,0.12),
+            0 0 16px rgba(126,168,212,0.14);
+}
+
+.player-area-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #1a2640;
+    border: 1px solid rgba(126,168,212,0.22);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #7ea8d4;
+    font-family: 'DM Mono', monospace;
+    flex-shrink: 0;
+}
+
+.player-area-name {
+    font-size: 0.8rem;
+    color: #e8f0f8;
+    font-weight: 500;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.player-area-name.is-you { color: #a3c2e8; }
+
+.player-area-round-score {
+    font-size: 0.82rem;
+    color: #e8f0f8;
+    font-family: 'DM Mono', monospace;
+    font-weight: 600;
+    min-width: 24px;
+    text-align: right;
+}
+
+/* ── Badge de statut ────────────────────────────────────────── */
+.player-area-status {
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.player-area-status.active {
+    background: rgba(126,168,212,0.1);
+    color: #7ea8d4;
+    border: 1px solid rgba(126,168,212,0.2);
+}
+.player-area-status.stayed {
+    background: rgba(39,174,96,0.1);
+    color: #2ecc71;
+    border: 1px solid rgba(39,174,96,0.2);
+}
+.player-area-status.busted {
+    background: rgba(192,57,43,0.1);
+    color: #e74c3c;
+    border: 1px solid rgba(192,57,43,0.2);
+}
+.player-area-status.flip7 {
+    background: rgba(241,196,15,0.12);
+    color: #f1c40f;
+    border: 1px solid rgba(241,196,15,0.25);
+}

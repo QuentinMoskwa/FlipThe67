@@ -53,7 +53,7 @@ export default function CardDemo() {
       flexDirection: 'column',
       gap: 60,
     }}>
-      <h2 style={{ color: '#f9fafb', margin: 0 }}>Flip 7 — Démo pioche</h2>
+      <h2 style={{ color: '#f9fafb', margin: 0 }}>FlipThe67 - Démo pioche</h2>
 
       {/* ── Pioche ── */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
@@ -61,7 +61,7 @@ export default function CardDemo() {
 
         <div style={{ position: 'relative' }}>
 
-          {/* Effet de pile — cartes décalées derrière */}
+          {/* Effet de pile - cartes décalées derrière */}
           {[8, 4].map((offset, i) => (
             <div key={i} style={{
               position: 'absolute',
@@ -75,7 +75,7 @@ export default function CardDemo() {
             }} />
           ))}
 
-          {/* Carte du dessus — cliquable */}
+          {/* Carte du dessus - cliquable */}
           <div style={{ position: 'relative', zIndex: 3 }}>
             <Card
               card={{ id: 'deck', type: 'number', value: 0 }}
