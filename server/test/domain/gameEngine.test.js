@@ -39,6 +39,7 @@ function makeRound(playerIds, overrides = {}) {
         phase: RoundPhase.PLAYING,
         deck: [],
         currentPlayerIndex: 0,
+        discardPile: [],
         activePlayerIds: [...playerIds],
         playerStates: Object.fromEntries(playerIds.map(id => [id, makePlayerState(id)])),
         ...overrides,

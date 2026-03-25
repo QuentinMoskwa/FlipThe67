@@ -55,7 +55,7 @@ export function computeScoreForStayedPlayers(round) {
  */
 export function processSlay(round, playerId, targetPlayerId) {
     const playerState = round.playerStates[playerId]
-    const card = drawCard(round.deck)
+    const card = drawCard(round.deck, round.discardPile)
 
     if (card.type === CardType.ACTION) {
         resolveActionCard(round, card, playerId, targetPlayerId)
@@ -67,7 +67,7 @@ export function processSlay(round, playerId, targetPlayerId) {
 
     // NUMBER ou MODIFIER
     playerState.cards.push(card)
-    isBust(playerState)
+    isBust(playerState, round.discardPile)
 
     if (playerState.hasBusted) {
         computeRoundScore(playerState)
@@ -139,6 +139,7 @@ export function finalizeRound(round, gameState) {
     round.phase = RoundPhase.SCORING
 
     for (const playerState of Object.values(round.playerStates)) {
+        round.discardPile.push(...playerState.cards)
         updateCumulativeScores(playerState, gameState)
     }
 }

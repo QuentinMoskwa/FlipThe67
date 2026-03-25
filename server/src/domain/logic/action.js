@@ -53,7 +53,7 @@ export function applyFlipThree(round, targetPlayerId, resolveAction) {
     let cardsDrawn = 0
 
     while (cardsDrawn < 3) {
-        const card = drawCard(round.deck)
+        const card = drawCard(round.deck, round.discardPile)
         cardsDrawn++
 
         if (card.type === CardType.ACTION) {
@@ -87,11 +87,15 @@ export function applyFlipThree(round, targetPlayerId, resolveAction) {
  * @param {Round} round
  * @param {string} targetPlayerId
  */
-export function addSecondChance(round, targetPlayerId) {
+export function addSecondChance(round, targetPlayerId, card) {
     const playerState = round.playerStates[targetPlayerId]
 
-    if (playerState.hasSecondChance) return
+    if (playerState.hasSecondChance) {
+        round.discardPile.push(card)
+        return
+    }
     playerState.hasSecondChance = true
+    playerState.cards.push(card)
 }
 
 /**
@@ -113,14 +117,16 @@ export function resolveActionCard(round, card, sourcePlayerId, targetPlayerId) {
     switch (card.value) {
         case ActionKind.FREEZE:
             applyFreeze(round, effectiveTargetId)
+            round.discardPile.push(card)
             break
 
         case ActionKind.FLIP_THREE:
             applyFlipThree(round, effectiveTargetId, resolveActionCard)
+            round.discardPile.push(card)
             break
 
         case ActionKind.SECOND_CHANCE:
-            addSecondChance(round, effectiveTargetId)
+            addSecondChance(round, effectiveTargetId, card)
             break
     }
 }
