@@ -18,7 +18,6 @@ export function useSocket() {
         }
     }, [])
 
-    // Wrappers typés pour les events du lobby
     const emit = (event, data) => socketRef.current?.emit(event, data)
     const on   = (event, cb)   => socketRef.current?.on(event, cb)
     const off  = (event, cb)   => socketRef.current?.off(event, cb)
