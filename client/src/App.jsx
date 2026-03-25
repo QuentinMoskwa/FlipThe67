@@ -18,7 +18,7 @@ const DEMO_CARDS = [
 ]
 
 function App() {
-  return <GameBoard />
+  return <Lobby />
 }
 
 
