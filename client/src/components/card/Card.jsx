@@ -20,19 +20,19 @@ const TYPE_CONFIG = {
     },
 }
 
-const ACTION_LABELS = {
-    freeze:        { icon: '❄', label: 'FREEZE' },
-    flip3:         { icon: '×3', label: 'FLIP 3' },
-    second_chance: { icon: '2ND', label: 'CHANCE' },
+const ACTION_valueS = {
+    freeze:        { icon: '❄', value: 'FREEZE' },
+    flip3:         { icon: '×3', value: 'FLIP 3' },
+    second_chance: { icon: '2ND', value: 'CHANCE' },
 }
 
-const MODIFIER_LABELS = {
-    'x2':  { label: '×2' },
-    '+2':  { label: '+2' },
-    '+4':  { label: '+4' },
-    '+6':  { label: '+6' },
-    '+8':  { label: '+8' },
-    '+10': { label: '+10' },
+const MODIFIER_valueS = {
+    'x2':  { value: '×2' },
+    '+2':  { value: '+2' },
+    '+4':  { value: '+4' },
+    '+6':  { value: '+6' },
+    '+8':  { value: '+8' },
+    '+10': { value: '+10' },
 }
 
 function CardFront({ card }) {
@@ -50,21 +50,21 @@ function CardFront({ card }) {
         }
 
         if (card.type === 'action') {
-            const info = ACTION_LABELS[card.value] ?? { icon: '?', label: card.value }
+            const info = ACTION_valueS[card.value] ?? { icon: '?', value: card.value }
             return (
                 <div className="card-action">
                     <span className="card-action-icon">{info.icon}</span>
-                    <span className="card-action-label">{info.label}</span>
+                    <span className="card-action-value">{info.value}</span>
                 </div>
             )
         }
 
         if (card.type === 'modifier') {
-            // Correction : lookup sur card.value (clé réelle), card.label en fallback
-            const info = MODIFIER_LABELS[card.value] ?? MODIFIER_LABELS[card.label] ?? { label: card.value ?? card.label }
+            // Correction : lookup sur card.value (clé réelle), card.value en fallback
+            const info = MODIFIER_valueS[card.value] ?? MODIFIER_valueS[card.value] ?? { value: card.value ?? card.value }
             return (
                 <div className="card-modifier">
-                    <span className="card-modifier-value">{info.label}</span>
+                    <span className="card-modifier-value">{info.value}</span>
                 </div>
             )
         }
