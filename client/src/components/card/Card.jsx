@@ -20,13 +20,13 @@ const TYPE_CONFIG = {
     },
 }
 
-const ACTION_valueS = {
+const ACTION_VALUES = {
     freeze:        { icon: '❄', value: 'FREEZE' },
     flip3:         { icon: '×3', value: 'FLIP 3' },
     second_chance: { icon: '2ND', value: 'CHANCE' },
 }
 
-const MODIFIER_valueS = {
+const MODIFIER_VALUES = {
     'x2':  { value: '×2' },
     '+2':  { value: '+2' },
     '+4':  { value: '+4' },
@@ -50,7 +50,7 @@ function CardFront({ card }) {
         }
 
         if (card.type === 'action') {
-            const info = ACTION_valueS[card.value] ?? { icon: '?', value: card.value }
+            const info = ACTION_VALUES[card.value] ?? { icon: '?', value: card.value }
             return (
                 <div className="card-action">
                     <span className="card-action-icon">{info.icon}</span>
@@ -61,7 +61,7 @@ function CardFront({ card }) {
 
         if (card.type === 'modifier') {
             // Correction : lookup sur card.value (clé réelle), card.value en fallback
-            const info = MODIFIER_valueS[card.value] ?? MODIFIER_valueS[card.value] ?? { value: card.value ?? card.value }
+            const info = MODIFIER_VALUES[card.value] ?? MODIFIER_VALUES[card.value] ?? { value: card.value ?? card.value }
             return (
                 <div className="card-modifier">
                     <span className="card-modifier-value">{info.value}</span>
