@@ -156,7 +156,7 @@ export default function Lobby({onGameReady}) {
                         <input
                             className="lobby-input"
                             type="text"
-                            placeholder="Ex : Blackjack Bobby"
+                            placeholder="Ex : Hector"
                             maxLength={20}
                             value={username}
                             onChange={e => {

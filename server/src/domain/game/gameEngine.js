@@ -211,7 +211,7 @@ export function closeRound(gameState) {
     gameState.dealerIndex = nextDealerIndex
     gameState.round = createRound(
         gameState.players,
-        round.discardPile.length > 0 ? shuffle(round.discardPile) : createDeck(),
+        createDeck(),
         nextDealerIndex,
     )
 
