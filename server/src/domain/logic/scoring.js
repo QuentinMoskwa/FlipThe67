@@ -9,7 +9,7 @@ import {filterToNumberCards, filterToModifierCards} from "../utils/utils.js";
  * 2. Check si Flip 67 (bonus à déterminer)
  * 3. Somme des cartes numérotées
  * 4. Modificateurs additifs (+2 … +10)
- * 5. Modificateur ×2 — appliqué en dernier ()
+ * 5. Modificateur ×2 - appliqué en dernier ()
  * 6. Check si Flip 7 (car pas de x2 sur le bonus Flip 7)
  */
 export function computeRoundScore(playerState) {
@@ -56,7 +56,7 @@ export function computeRoundScore(playerState) {
  *  1. Somme des cartes numérotées
  *  2. Bonus Flip 7 (+15)
  *  3. Modificateurs additifs (+2 … +10)
- *  4. Modificateur ×2 — appliqué en dernier
+ *  4. Modificateur ×2 - appliqué en dernier
  *
  * @param {PlayerRoundState} playerState
  * @returns {number}

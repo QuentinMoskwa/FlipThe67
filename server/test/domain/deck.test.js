@@ -143,13 +143,15 @@ describe('drawCard', () => {
 
     it('régénère un deck complet si le deck est vide', () => {
         const deck = []
-        drawCard(deck)
+        const discardPile = createDeck()
+        drawCard(deck, discardPile)
         expect(deck).toHaveLength(93)
     })
 
     it('retourne bien une carte quand le deck était vide', () => {
         const deck = []
-        const card = drawCard(deck)
+        const discardPile = createDeck()
+        const card = drawCard(deck, discardPile)
         expect(card).toHaveProperty('id')
         expect(card).toHaveProperty('type')
         expect(card).toHaveProperty('value')

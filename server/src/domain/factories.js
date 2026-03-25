@@ -91,6 +91,7 @@ export class Round {
         this.startingPlayerIndex = startingPlayerIndex
         this.currentPlayerIndex = startingPlayerIndex
         this.deck = deck
+        this.discardPile = []
         this.playerStates = playerStates
         this.activePlayerIds = activePlayerIds
     }
