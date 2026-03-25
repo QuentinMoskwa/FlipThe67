@@ -1,34 +1,37 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { useSocket } from '../../hooks/useSocket'
-import { useCardCanvas } from '../../hooks/useCardCanvas'
+import {useState, useEffect, useRef, useCallback} from 'react'
+import {useSocket} from '../../hooks/useSocket'
+import {useCardCanvas} from '../../hooks/useCardCanvas'
 import './Lobby.css'
 
-// ─── Steps ────────────────────────────────────────────────
+// ─── Steps ────────────────────────────────────────────────────
 // 'username' → 'menu' → 'join-form' | 'waiting'
 
-export default function Lobby() {
+/**
+ * @param {Function} props.onGameReady  - ({ playerId, host }) → appelé quand le joueur
+ *                                        a rejoint/créé une partie. Permet à App de stocker
+ *                                        myId et isHost pour les vues suivantes.
+ */
+export default function Lobby({onGameReady}) {
     const canvasRef = useRef(null)
     useCardCanvas(canvasRef)
 
-    const { connected, emit, on, off } = useSocket()
+    const {connected, emit, on, off} = useSocket()
 
-    // ── State ──────────────────────────────────────────────
-    const [step,      setStep]      = useState('username')
-    const [username,  setUsername]  = useState('')
-    const [joinCode,  setJoinCode]  = useState('')
+    const [step, setStep] = useState('username')
+    const [username, setUsername] = useState('')
+    const [joinCode, setJoinCode] = useState('')
     const [loading, setLoading] = useState(false)
-    const [gameCode,  setGameCode]  = useState(null)   // code de la partie rejointe/créée
-    const [players,   setPlayers]   = useState([])     // [{ id, name, isHost }]
-    const [isHost,    setIsHost]    = useState(false)
-    const [myId,      setMyId]      = useState(null)
-    const [copied,    setCopied]    = useState(false)
-    const [error,     setError]     = useState('')
+    const [gameCode, setGameCode] = useState(null)
+    const [players, setPlayers] = useState([])
+    const [isHost, setIsHost] = useState(false)
+    const [myId, setMyId] = useState(null)
+    const [copied, setCopied] = useState(false)
+    const [error, setError] = useState('')
 
-    // ── Listener d'erreur global — indépendant du step ────
+    // ── Listener d'erreur global ───────────────────────────────
     useEffect(() => {
-        const onError = ({ message }) => {
-            setError(message)
-            // Si on était en train de rejoindre, on revient au formulaire
+        const onError = ({message}) => {
+            setError(message ?? 'Une erreur est survenue.')
             setStep(prev => prev === 'waiting' ? 'join-form' : prev)
             setLoading(false)
         }
@@ -36,56 +39,52 @@ export default function Lobby() {
         return () => off('error', onError)
     }, [on, off])
 
-    // ── Socket listeners (waiting room) ───────────────────
+    // ── Socket listeners (waiting room) ───────────────────────
     useEffect(() => {
         if (step !== 'waiting') return
 
-        const onGameCreated = ({ gameId, playerId }) => {
+        const onGameCreated = ({gameId, playerId}) => {
             setGameCode(gameId)
             setMyId(playerId)
             setIsHost(true)
+            setLoading(false)
+            onGameReady?.({playerId, host: true})
         }
 
-        const onGameJoined = ({ playerId }) => {
+        const onGameJoined = ({playerId}) => {
             setMyId(playerId)
+            setLoading(false)
+            onGameReady?.({playerId, host: false})
         }
 
         const onGameStateUpdate = (gameState) => {
             const playerList = gameState.players.map(p => ({
-                id:     p.id,
-                name:   p.name,
+                id: p.id,
+                name: p.name,
                 isHost: p.id === gameState.hostId,
             }))
             setPlayers(playerList)
             setGameCode(prev => prev ?? gameState.id)
-            if (gameState.status === 'playing') {
-                console.log('game is : ', gameState)
-            }
         }
 
-        const onGameStarted = (gameState) => {
-            console.log('[game-started] navigating to game', gameState)
-            // TODO: setScreen('game') quand la vue de jeu sera prête
-        }
+        // game-started est géré dans App.jsx — pas besoin de naviguer ici
 
-        on('game-created',      onGameCreated)
-        on('game-joined',       onGameJoined)
+        on('game-created', onGameCreated)
+        on('game-joined', onGameJoined)
         on('game-state-update', onGameStateUpdate)
-        on('game-started',      onGameStarted)
 
         return () => {
-            off('game-created',      onGameCreated)
-            off('game-joined',       onGameJoined)
+            off('game-created', onGameCreated)
+            off('game-joined', onGameJoined)
             off('game-state-update', onGameStateUpdate)
-            off('game-started',      onGameStarted)
         }
-    }, [step, on, off])
+    }, [step, on, off, onGameReady])
 
-    // ── Actions ────────────────────────────────────────────
+    // ── Actions ────────────────────────────────────────────────
     const confirmUsername = () => {
         const name = username.trim()
         if (!name || name.length < 2) {
-            setError('Minimum 2 caractères.')
+            setError('Minimum 2 caractères.');
             return
         }
         setError('')
@@ -94,26 +93,27 @@ export default function Lobby() {
 
     const createGame = () => {
         setError('')
+        setLoading(true)
+        setIsHost(true)
         setStep('waiting')
-        emit('create-game', { playerName: username })
+        emit('create-game', {playerName: username})
     }
 
     const joinGame = () => {
         const code = joinCode.trim()
         if (code.length < 4) {
-            setError('Code invalide.')
+            setError('Code invalide.');
             return
         }
         setError('')
         setLoading(true)
         setIsHost(false)
         setStep('waiting')
-        emit('join-game', { gameId: code, playerName: username })
+        emit('join-game', {gameId: code, playerName: username})
     }
 
     const startGame = () => {
-        emit('start-game', { gameId: gameCode })
-        console.log('TODO: game:start →', gameCode)
+        emit('start-game', {gameId: gameCode})
     }
 
     const copyCode = useCallback(() => {
@@ -122,40 +122,34 @@ export default function Lobby() {
         setTimeout(() => setCopied(false), 1500)
     }, [gameCode])
 
-    const stepIndex = { username: 0, menu: 1, 'join-form': 1, waiting: 2 }
+    const stepIndex = {username: 0, menu: 1, 'join-form': 1, waiting: 2}
 
-    // ── Render ─────────────────────────────────────────────
+    // ── Render ─────────────────────────────────────────────────
     return (
         <div className="lobby-root">
-            <canvas ref={canvasRef} className="lobby-canvas" />
+            <canvas ref={canvasRef} className="lobby-canvas"/>
 
             <div className="lobby-card">
-                {/* Indicateur de connexion */}
                 <div className={`connection-dot ${connected ? '' : 'offline'}`}>
                     {connected ? 'connecté' : 'hors ligne'}
                 </div>
 
-                {/* Logo */}
                 <div className="lobby-logo">
                     <h1>FlipThe<span className="logo-accent">67</span></h1>
                     <div className="subtitle">Jeu de cartes en ligne</div>
                 </div>
-                <hr className="lobby-divider" />
+                <hr className="lobby-divider"/>
 
-                {/* Step dots */}
                 <div className="step-indicator">
                     {[0, 1, 2].map(i => (
-                        <div
-                            key={i}
-                            className={`step-dot ${
-                                i === stepIndex[step] ? 'active' :
-                                    i <  stepIndex[step] ? 'done'   : ''
-                            }`}
-                        />
+                        <div key={i} className={`step-dot ${
+                            i === stepIndex[step] ? 'active' :
+                                i < stepIndex[step] ? 'done' : ''
+                        }`}/>
                     ))}
                 </div>
 
-                {/* ── Step 1 : username ────────────────────────── */}
+                {/* ── Step 1 : username ── */}
                 {step === 'username' && (
                     <div className="step-enter">
                         <label className="lobby-label">Votre pseudo</label>
@@ -165,11 +159,14 @@ export default function Lobby() {
                             placeholder="Ex : Blackjack Bobby"
                             maxLength={20}
                             value={username}
-                            onChange={e => { setUsername(e.target.value); setError('') }}
+                            onChange={e => {
+                                setUsername(e.target.value);
+                                setError('')
+                            }}
                             onKeyDown={e => e.key === 'Enter' && confirmUsername()}
                             autoFocus
                         />
-                        {error && <p style={{ color: '#c0392b', fontSize: '0.78rem', marginTop: 6 }}>{error}</p>}
+                        {error && <p style={{color: '#c0392b', fontSize: '0.78rem', marginTop: 6}}>{error}</p>}
                         <div className="mt-16">
                             <button
                                 className="btn-primary"
@@ -182,10 +179,10 @@ export default function Lobby() {
                     </div>
                 )}
 
-                {/* ── Step 2a : menu ───────────────────────────── */}
+                {/* ── Step 2a : menu ── */}
                 {step === 'menu' && (
                     <div className="step-enter">
-                        <p className="menu-greeting">Bonjour, <strong>{username}</strong> - que voulez-vous faire ?</p>
+                        <p className="menu-greeting">Bonjour, <strong>{username}</strong> — que voulez-vous faire ?</p>
                         <div className="menu-options">
                             <div className="menu-option-card" onClick={createGame}>
                                 <div className="menu-option-icon">🃏</div>
@@ -202,14 +199,14 @@ export default function Lobby() {
                                 </div>
                             </div>
                         </div>
-                        <button className="btn-ghost text-center" style={{ width: '100%' }}
+                        <button className="btn-ghost text-center" style={{width: '100%'}}
                                 onClick={() => setStep('username')}>
                             ← Changer de pseudo
                         </button>
                     </div>
                 )}
 
-                {/* ── Step 2b : join form ──────────────────────── */}
+                {/* ── Step 2b : join form ── */}
                 {step === 'join-form' && (
                     <div className="step-enter">
                         <label className="lobby-label">Code de la partie</label>
@@ -219,43 +216,44 @@ export default function Lobby() {
                                 type="text"
                                 placeholder="XXXX"
                                 value={joinCode}
-                                onChange={e => { setJoinCode(e.target.value); setError('') }}
+                                onChange={e => {
+                                    setJoinCode(e.target.value);
+                                    setError('')
+                                }}
                                 onKeyDown={e => e.key === 'Enter' && joinGame()}
                                 autoFocus
                             />
-                            {error && <p style={{ color: '#c0392b', fontSize: '0.78rem', margin: 0 }}>{error}</p>}
-                            <button className="btn-primary" onClick={joinGame}>
-                                Rejoindre la partie
+                            {error && <p style={{color: '#c0392b', fontSize: '0.78rem', margin: 0}}>{error}</p>}
+                            <button className="btn-primary" onClick={joinGame} disabled={loading}>
+                                {loading ? 'Connexion…' : 'Rejoindre la partie'}
                             </button>
-                            <button className="btn-ghost text-center" onClick={() => { setStep('menu'); setError('') }}>
+                            <button className="btn-ghost text-center" onClick={() => {
+                                setStep('menu');
+                                setError('')
+                            }}>
                                 ← Retour
                             </button>
                         </div>
                     </div>
                 )}
 
-                {/* ── Step 3 : waiting room ────────────────────── */}
+                {/* ── Step 3 : waiting room ── */}
                 {step === 'waiting' && (
                     <div className="step-enter">
                         <div className="waiting-header">
                             <h2>Salle d'attente</h2>
                             <div className="game-code-badge" onClick={copyCode} title="Copier le code">
                                 <span className="code-label">CODE</span>
-                                <strong>{gameCode}</strong>
+                                <strong>{gameCode ?? '…'}</strong>
                                 <span>{copied ? '✓' : '⎘'}</span>
                             </div>
                         </div>
-                        <p className="waiting-subtitle">
-                            Partagez le code pour inviter vos amis.
-                        </p>
+                        <p className="waiting-subtitle">Partagez le code pour inviter vos amis.</p>
 
-                        {/* Liste joueurs */}
                         <div className="players-list">
                             {players.map(p => (
                                 <div key={p.id} className="player-row">
-                                    <div className="player-avatar">
-                                        {p.name.charAt(0).toUpperCase()}
-                                    </div>
+                                    <div className="player-avatar">{p.name.charAt(0).toUpperCase()}</div>
                                     <span className="player-name">{p.name}</span>
                                     {p.isHost && <span className="player-badge host">Host</span>}
                                     {p.id === myId && !p.isHost && <span className="player-badge you">Vous</span>}
@@ -263,7 +261,6 @@ export default function Lobby() {
                             ))}
                         </div>
 
-                        {/* Attente ou démarrer */}
                         {isHost ? (
                             <button
                                 className="btn-primary"
@@ -276,9 +273,7 @@ export default function Lobby() {
                             </button>
                         ) : (
                             <div className="waiting-dots">
-                                <div className="dot-pulse">
-                                    <span /><span /><span />
-                                </div>
+                                <div className="dot-pulse"><span/><span/><span/></div>
                                 En attente du host…
                             </div>
                         )}
@@ -288,6 +283,7 @@ export default function Lobby() {
                                 setStep('menu')
                                 setPlayers([])
                                 setGameCode(null)
+                                setMyId(null)
                             }}>
                                 Quitter la salle
                             </button>
