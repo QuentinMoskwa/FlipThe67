@@ -8,15 +8,13 @@ export function evaluateVictory(gameState) {
         }
     }
 
-    if(winners.length == 1) return winners[0]
-    if(winners.length == 0) return null
+    if(winners.length == 1) return winners
+    if(winners.length == 0) return []
 
-    // Trie des scores pour départager les gagnants
+    // Tri des scores pour départager les gagnants
     winners.sort((a, b) => gameState.scores[b] - gameState.scores[a])
-    
-    let finalWinners = []
 
-    finalWinners.push(winners[0])
+    let finalWinners = []
 
     for (const winnerId of winners) {
         if (gameState.scores[winnerId] === gameState.scores[winners[0]]) {
@@ -27,5 +25,5 @@ export function evaluateVictory(gameState) {
     }
 
     return finalWinners
-    
+
 }
