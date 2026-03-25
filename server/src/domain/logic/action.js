@@ -44,7 +44,7 @@ export function applyFreeze(round, targetPlayerId) {
  * @param {Round} round
  * @param {string} targetPlayerId
  * @param {(round: Round, card: Card, sourcePlayerId: string) => void} resolveAction
- *   Callback de résolution d'une action — on passe resolveActionCard pour gérer les chaînes.
+ *   Callback de résolution d'une action - on passe resolveActionCard pour gérer les chaînes.
  *   Le sourcePlayerId est le joueur qui résout l'action chaînée (le busted peut toujours cibler).
  */
 export function applyFlipThree(round, targetPlayerId, resolveAction) {
@@ -74,7 +74,7 @@ export function applyFlipThree(round, targetPlayerId, resolveAction) {
         }
     }
 
-    // Résolution des actions en attente — même si le joueur a busté
+    // Résolution des actions en attente - même si le joueur a busté
     for (const actionCard of pendingActions) {
         resolveAction(round, actionCard, targetPlayerId)
     }
@@ -82,7 +82,7 @@ export function applyFlipThree(round, targetPlayerId, resolveAction) {
 
 /**
  * Donne le Second Chance au joueur s'il n'en a pas déjà un.
- * Si le joueur en a déjà un, la carte est simplement défaussée — rien ne se passe.
+ * Si le joueur en a déjà un, la carte est simplement défaussée - rien ne se passe.
  *
  * @param {Round} round
  * @param {string} targetPlayerId
