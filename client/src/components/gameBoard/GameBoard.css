@@ -1,0 +1,305 @@
+/* ── Tokens ──────────────────────────────────────────────────── */
+.gameboard-root {
+    --bg:         #080e1a;
+    --bg-mid:     #0d1524;
+    --surface:    #101828;
+    --surface-hi: #1a2640;
+    --slate:      #7ea8d4;
+    --slate-hi:   #a3c2e8;
+    --slate-lo:   #3e6490;
+    --frost:      #e8f0f8;
+    --frost-dim:  #8aaac8;
+    --border:     rgba(126,168,212,0.14);
+    --border-hi:  rgba(126,168,212,0.30);
+    --danger:     #c0392b;
+    --success:    #27ae60;
+    --radius:     12px;
+    --radius-sm:  8px;
+    --font-title: 'DM Sans', system-ui, sans-serif;
+    --font-mono:  'DM Mono', monospace;
+
+    /* Dimensions de référence pour les boutons */
+    --card-h:      104px;
+    --info-h:      36px;
+    --stack-gap:   12px;
+    --area-h-base: calc(var(--card-h) + var(--stack-gap) + var(--info-h));
+    --btn-h:       calc((var(--area-h-base) - 8px) / 2);
+    --btn-w:       84px;
+}
+
+/* ── Layout racine ───────────────────────────────────────────── */
+.gameboard-root {
+    position: relative;
+    width: 100dvw;
+    height: 100dvh;
+    background: var(--bg);
+    font-family: var(--font-title);
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+        ". top ."
+        "left center right"
+        ". bottom .";
+}
+
+/* ── Zones joueurs ───────────────────────────────────────────── */
+.player-slot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    z-index: 2;
+}
+
+.player-slot-top    { grid-area: top;    align-items: flex-start; }
+.player-slot-bottom { grid-area: bottom; align-items: flex-end; }
+.player-slot-left   { grid-area: left;   justify-content: flex-start; }
+.player-slot-right  { grid-area: right;  justify-content: flex-end; }
+
+/* Rotation pour les joueurs latéraux */
+.player-slot-left  .player-area { transform: rotate(90deg); }
+.player-slot-right .player-area { transform: rotate(-90deg); }
+
+/* ── Wrapper bottom : PlayerArea + boutons en flex normal ────── */
+/* On ne center PAS le wrapper mais son contenu — la PlayerArea + boutons
+   forment une seule unité centrée dans le slot */
+.player-area-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 14px;
+}
+
+/* ── Boutons Slay / Stay — carrés, flux normal ────────────────── */
+.action-buttons-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.btn-action-square {
+    width: var(--btn-w);
+    height: var(--btn-h);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-title);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.2s ease;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.btn-action-square.slay {
+    background: var(--slate);
+    color: var(--bg);
+    border-color: transparent;
+    box-shadow: 0 4px 16px rgba(126,168,212,0.25);
+}
+
+.btn-action-square.stay {
+    background: rgba(255,255,255,0.04);
+    color: var(--frost-dim);
+    backdrop-filter: blur(4px);
+}
+
+.btn-action-square:hover:not(:disabled) {
+    transform: scale(1.06);
+    filter: brightness(1.15);
+    box-shadow: 0 6px 20px rgba(126,168,212,0.3);
+}
+
+.btn-action-square:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.btn-action-square:disabled {
+    opacity: 0.15;
+    cursor: not-allowed;
+    filter: grayscale(1);
+    box-shadow: none;
+}
+
+/* ── Zone centrale ───────────────────────────────────────────── */
+.gameboard-center {
+    grid-area: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    z-index: 1;
+}
+
+/* ── Phase banner dynamique ──────────────────────────────────── */
+.phase-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 18px;
+    border-radius: 99px;
+    border: 1px solid var(--border);
+    background: rgba(126,168,212,0.06);
+    backdrop-filter: blur(8px);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transition: border-color 0.3s, color 0.3s;
+}
+
+.phase-banner-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    animation: pulseDot 1.6s ease-in-out infinite;
+}
+
+.phase-banner.state-my-turn {
+    border-color: rgba(126,168,212,0.4);
+    color: var(--slate-hi);
+}
+.phase-banner.state-my-turn .phase-banner-dot {
+    background: var(--slate-hi);
+    box-shadow: 0 0 6px rgba(163,194,232,0.7);
+}
+
+.phase-banner.state-other-turn {
+    color: var(--frost-dim);
+}
+.phase-banner.state-other-turn .phase-banner-dot {
+    background: var(--frost-dim);
+}
+
+.phase-banner.state-inactive {
+    color: var(--slate-lo);
+    opacity: 0.65;
+}
+.phase-banner.state-inactive .phase-banner-dot {
+    background: var(--slate-lo);
+}
+
+.phase-banner-turn {
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+}
+.phase-banner-turn strong { font-weight: 700; }
+
+@keyframes pulseDot {
+    0%, 100% { opacity: 1;   transform: scale(1); }
+    50%       { opacity: 0.4; transform: scale(0.7); }
+}
+
+/* ── Zone dealer ─────────────────────────────────────────────── */
+.deck-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.deck-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--slate-lo);
+    font-family: var(--font-mono);
+}
+
+.deck-stack {
+    position: relative;
+    width: 72px;
+    height: 104px;
+    cursor: pointer;
+}
+
+.deck-stack-shadow {
+    position: absolute;
+    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+}
+
+.deck-stack-shadow:nth-child(1) { top: -4px; left: 4px; width: 72px; height: 104px; opacity: 0.5; }
+.deck-stack-shadow:nth-child(2) { top: -8px; left: 8px; width: 72px; height: 104px; opacity: 0.3; }
+
+.deck-top-card {
+    position: relative;
+    z-index: 2;
+    transition: transform 0.15s ease;
+}
+.deck-stack:hover .deck-top-card { transform: translateY(-4px); }
+
+.deck-count {
+    font-size: 0.68rem;
+    color: var(--frost-dim);
+    font-family: var(--font-mono);
+}
+
+/* ── Score de manche panel ───────────────────────────────────── */
+.scores-panel {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(8,18,34,0.82);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    backdrop-filter: blur(12px);
+    min-width: 140px;
+    z-index: 10;
+}
+
+.scores-title {
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--slate-lo);
+    margin-bottom: 10px;
+}
+
+.score-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 0.82rem;
+    border-bottom: 1px solid var(--border);
+}
+.score-row:last-child { border-bottom: none; }
+
+.score-name {
+    color: var(--frost-dim);
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.score-name.is-you { color: var(--slate); }
+
+.score-value {
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    color: var(--frost);
+    font-weight: 600;
+}
+
+/* ── Vignette de fond ────────────────────────────────────────── */
+.gameboard-root::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(13,21,36,0.6) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}

@@ -5,6 +5,7 @@ import heroImg from './assets/hero.png'
 import './App.css'
 import Lobby from './components/Lobby/Lobby'
 import CardDemo from './components/card/CardDemo'
+import GameBoard from "./components/gameBoard/GameBoard.jsx";
 
 const DEMO_CARDS = [
   { id: '1', type: 'number',   value: 7 },
@@ -17,7 +18,7 @@ const DEMO_CARDS = [
 ]
 
 function App() {
-  return <Lobby />
+  return <GameBoard />
 }
 
 
