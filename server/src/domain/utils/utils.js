@@ -33,10 +33,29 @@ export function removeFromActive(round, playerId) {
 }
 
 /**
+ * Retourne les joueurs dans l'ordre de jeu à partir du startingPlayerIndex.
+ * Exemple : players=[A,B,C,D], startingPlayerIndex=2 → [C,D,A,B]
+ *
+ * @param {Player[]} players
+ * @param {number}   startingPlayerIndex
+ * @returns {Player[]}
+ */
+export function getOrderedPlayers(players, startingPlayerIndex) {
+    const ordered = []
+
+    for (let i = 0; i < players.length; i++) {
+        const index = (startingPlayerIndex + i) % players.length
+        ordered.push(players[index])
+    }
+
+    return ordered
+}
+
+/**
  * Vérifie si le round est terminé.
  * Le round se termine quand :
- *  - plus aucun joueur n'est actif (tous bustés ou stayed)
- *  - ou un joueur a réussi le Flip 7 (déjà retiré des actifs dans processSlay)
+ *  plus aucun joueur n'est actif (tous bustés ou stayed)
+ *  ou un joueur a réussi le Flip 7 (déjà retiré des actifs dans processSlay)
  *
  * @param {Round} round
  * @returns {boolean}
