@@ -3,6 +3,7 @@ import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
+import Lobby from './components/Lobby/Lobby'
 import CardDemo from './components/card/CardDemo'
 
 const DEMO_CARDS = [
@@ -16,7 +17,7 @@ const DEMO_CARDS = [
 ]
 
 function App() {
-  return <CardDemo/>
+  return <Lobby />
 }
 
 
