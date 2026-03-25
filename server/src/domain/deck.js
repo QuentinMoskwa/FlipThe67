@@ -94,15 +94,20 @@ export function createDeck() {
 
 /**
  * Pioche la première carte du deck.
- * Si le deck est vide, un nouveau deck complet est généré et mélangé.
- * Mute le tableau deck directement.
+ * Si le deck est vide, la discardPile est mélangée pour former un nouveau deck.
+ * Les cartes dans la main des joueurs ne sont jamais remises dans le deck.
+ * Mute deck et discardPile directement.
  *
  * @param {Card[]} deck
+ * @param {Card[]} discardPile
  * @returns {Card}
+ * @throws {Error} Si le deck et la discardPile sont tous les deux vides
  */
-export function drawCard(deck) {
+export function drawCard(deck, discardPile) {
     if (deck.length === 0) {
-        deck.push(...createDeck())
+        if (discardPile.length === 0) throw new Error('Plus aucune carte disponible')
+        deck.push(...shuffle(discardPile))
+        discardPile.length = 0
     }
     return deck.shift()
 }

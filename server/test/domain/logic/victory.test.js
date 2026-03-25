@@ -54,7 +54,7 @@ describe('evaluateVictory', () => {
         })
     })
 
-    describe('égalité — manche supplémentaire requise', () => {
+    describe('égalité - manche supplémentaire requise', () => {
         it('retourne les deux joueurs à égalité au-dessus de 200', () => {
             const gameState = makeGameState({ p1: 210, p2: 210 })
             const result = evaluateVictory(gameState)
