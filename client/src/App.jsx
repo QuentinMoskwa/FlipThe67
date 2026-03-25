@@ -16,6 +16,29 @@ const DEMO_CARDS = [
   { id: '7', type: 'modifier', value: '+4',  label: '+4' },
 ]
 
+/* Pour appeler l'écran des scores et l'écran de victoire
+{view === 'roundSummary' && gameState && (
+            <RoundSummary
+                gameState={gameState}
+                isHost={isHost}
+                myId={myId}
+                roundNumber={roundNumber}
+                onContinue={handleContinue}
+            />
+        )}
+
+        {view === 'victory' && gameState && (
+            <Victory
+                gameState={gameState}
+                winnerIds={winnerIds}
+                myId={myId}
+                isHost={isHost}
+                onPlayAgain={handlePlayAgain}
+                onLobby={handleLobby}
+            />
+        )}
+ */
+
 function App() {
   return <Lobby />
 }
