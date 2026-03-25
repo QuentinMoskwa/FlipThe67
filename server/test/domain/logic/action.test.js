@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { applyFreeze, applyFlipThree, applySecondChance, resolveActionCard } from '../../../src/domain/logic/action.js'
+import { applyFreeze, applyFlipThree, addSecondChance, resolveActionCard } from '../../../src/domain/logic/action.js'
 import { ActionKind, CardType } from '../../../src/domain/constants.js'
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
@@ -85,17 +85,19 @@ describe('applyFreeze', () => {
 
 describe('applySecondChance', () => {
     it('donne le Second Chance au joueur qui n\'en a pas', () => {
-        const playerState = makePlayerState('p1')
+        const playerState = makePlayerState('p1', { hasSecondChance: true })
+        const round = makeRound(['p1'])
 
-        applySecondChance(playerState)
+        addSecondChance(round, 'p1')
 
         expect(playerState.hasSecondChance).toBe(true)
     })
 
     it('ne fait rien si le joueur a déjà un Second Chance', () => {
         const playerState = makePlayerState('p1', { hasSecondChance: true })
+        const round = makeRound(['p1'])
 
-        applySecondChance(playerState)
+        addSecondChance(round, 'p1')
 
         expect(playerState.hasSecondChance).toBe(true)
     })

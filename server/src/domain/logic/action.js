@@ -8,7 +8,7 @@
 
 import {CardType, ActionKind} from '../constants.js'
 import {drawCard} from '../deck.js'
-import {getActivePlayerIds, removeFromActive} from "../../utils/utils.js"
+import {getActivePlayerIds, removeFromActive} from "../utils/utils.js"
 
 // ─── Résolution des cartes Action ─────────────────────────────────────────────
 
@@ -84,9 +84,12 @@ export function applyFlipThree(round, targetPlayerId, resolveAction) {
  * Donne le Second Chance au joueur s'il n'en a pas déjà un.
  * Si le joueur en a déjà un, la carte est simplement défaussée — rien ne se passe.
  *
- * @param {PlayerRoundState} playerState
+ * @param {Round} round
+ * @param {string} targetPlayerId
  */
-export function applySecondChance(playerState) {
+export function addSecondChance(round, targetPlayerId) {
+    const playerState = round.playerStates[targetPlayerId]
+
     if (playerState.hasSecondChance) return
     playerState.hasSecondChance = true
 }
@@ -117,9 +120,7 @@ export function resolveActionCard(round, card, sourcePlayerId, targetPlayerId) {
             break
 
         case ActionKind.SECOND_CHANCE:
-            if (!round.playerStates[effectiveTargetId].hasSecondChance) {
-                round.playerStates[effectiveTargetId].hasSecondChance = true
-            }
+            addSecondChance(round, effectiveTargetId)
             break
     }
 }

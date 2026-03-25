@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { isBust } from '../../../src/domain/logic/bust.js'
+import { isBust, isFlipSeven } from '../../../src/domain/logic/playerState.js'
 import { CardType } from '../../../src/domain/constants.js'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -23,6 +23,10 @@ function makeActionCard(action) {
 
 function makeModifierCard(modifier) {
     return { id: `mod-${modifier}`, type: CardType.MODIFIER, value: modifier }
+}
+
+function makeUniqueNumberCards(count) {
+    return Array.from({length: count}, (_, i) => makeNumberCard(i))
 }
 
 // ─── isBust ───────────────────────────────────────────────────────────────────
@@ -161,6 +165,50 @@ describe('isBust', () => {
 
             expect(playerState.hasSecondChance).toBe(true)
             expect(playerState.hasBusted).toBe(false)
+        })
+    })
+})
+
+// ─── isFlipSeven ──────────────────────────────────────────────────────────────
+
+describe('isFlipSeven', () => {
+
+    describe('cas positifs', () => {
+        it('retourne true avec exactement 7 cartes numérotées uniques', () => {
+            const hand = makeUniqueNumberCards(7)
+            expect(isFlipSeven(hand)).toBe(true)
+        })
+
+        it('retourne true avec 7 cartes numérotées et des cartes Action/Modifier ignorées', () => {
+            const hand = [
+                ...makeUniqueNumberCards(7),
+                makeActionCard('freeze'),
+                makeModifierCard('+2'),
+            ]
+            expect(isFlipSeven(hand)).toBe(true)
+        })
+    })
+
+    describe('cas négatifs', () => {
+        it('retourne false avec une main vide', () => {
+            expect(isFlipSeven([])).toBe(false)
+        })
+
+        it('retourne false avec moins de 7 cartes numérotées', () => {
+            expect(isFlipSeven(makeUniqueNumberCards(6))).toBe(false)
+        })
+
+        it('retourne false avec plus de 7 cartes numérotées', () => {
+            expect(isFlipSeven(makeUniqueNumberCards(8))).toBe(false)
+        })
+
+        it('retourne false avec 7 cartes dont certaines ne sont pas numérotées', () => {
+            const hand = [
+                ...makeUniqueNumberCards(5),
+                makeActionCard('freeze'),
+                makeModifierCard('+4'),
+            ]
+            expect(isFlipSeven(hand)).toBe(false)
         })
     })
 })

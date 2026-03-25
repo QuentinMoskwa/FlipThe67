@@ -1,4 +1,4 @@
-import {CardType} from "../domain/constants.js";
+import {CardType} from "../constants.js";
 
 export function filterToNumberCards(cards) {
     return cards.filter(c => c.type === CardType.NUMBER)
