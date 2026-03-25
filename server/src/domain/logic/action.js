@@ -44,7 +44,7 @@ export function applyFreeze(round, targetPlayerId) {
  * @param {Round} round
  * @param {string} targetPlayerId
  * @param {(round: Round, card: Card, sourcePlayerId: string) => void} resolveAction
- *   Callback de résolution d'une action — on passe resolveActionCard pour gérer les chaînes.
+ *   Callback de résolution d'une action - on passe resolveActionCard pour gérer les chaînes.
  *   Le sourcePlayerId est le joueur qui résout l'action chaînée (le busted peut toujours cibler).
  */
 export function applyFlipThree(round, targetPlayerId, resolveAction) {
@@ -53,7 +53,7 @@ export function applyFlipThree(round, targetPlayerId, resolveAction) {
     let cardsDrawn = 0
 
     while (cardsDrawn < 3) {
-        const card = drawCard(round.deck)
+        const card = drawCard(round.deck, round.discardPile)
         cardsDrawn++
 
         if (card.type === CardType.ACTION) {
@@ -74,7 +74,7 @@ export function applyFlipThree(round, targetPlayerId, resolveAction) {
         }
     }
 
-    // Résolution des actions en attente — même si le joueur a busté
+    // Résolution des actions en attente - même si le joueur a busté
     for (const actionCard of pendingActions) {
         resolveAction(round, actionCard, targetPlayerId)
     }
@@ -82,16 +82,20 @@ export function applyFlipThree(round, targetPlayerId, resolveAction) {
 
 /**
  * Donne le Second Chance au joueur s'il n'en a pas déjà un.
- * Si le joueur en a déjà un, la carte est simplement défaussée — rien ne se passe.
+ * Si le joueur en a déjà un, la carte est simplement défaussée - rien ne se passe.
  *
  * @param {Round} round
  * @param {string} targetPlayerId
  */
-export function addSecondChance(round, targetPlayerId) {
+export function addSecondChance(round, targetPlayerId, card) {
     const playerState = round.playerStates[targetPlayerId]
 
-    if (playerState.hasSecondChance) return
+    if (playerState.hasSecondChance) {
+        round.discardPile.push(card)
+        return
+    }
     playerState.hasSecondChance = true
+    playerState.cards.push(card)
 }
 
 /**
@@ -113,14 +117,16 @@ export function resolveActionCard(round, card, sourcePlayerId, targetPlayerId) {
     switch (card.value) {
         case ActionKind.FREEZE:
             applyFreeze(round, effectiveTargetId)
+            round.discardPile.push(card)
             break
 
         case ActionKind.FLIP_THREE:
             applyFlipThree(round, effectiveTargetId, resolveActionCard)
+            round.discardPile.push(card)
             break
 
         case ActionKind.SECOND_CHANCE:
-            addSecondChance(round, effectiveTargetId)
+            addSecondChance(round, effectiveTargetId, card)
             break
     }
 }

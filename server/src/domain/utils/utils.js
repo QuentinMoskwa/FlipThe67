@@ -50,3 +50,16 @@ export function getOrderedPlayers(players, startingPlayerIndex) {
 
     return ordered
 }
+
+/**
+ * Vérifie si le round est terminé.
+ * Le round se termine quand :
+ *  plus aucun joueur n'est actif (tous bustés ou stayed)
+ *  ou un joueur a réussi le Flip 7 (déjà retiré des actifs dans processSlay)
+ *
+ * @param {Round} round
+ * @returns {boolean}
+ */
+export function isRoundOver(round) {
+    return round.activePlayerIds.length === 0
+}

@@ -1,7 +1,7 @@
 import { filterToNumberCards } from "../utils/utils.js";
-import {FLIP_SEVEN_COUNT} from "../constants.js";
+import {ActionKind, CardType, FLIP_SEVEN_COUNT} from "../constants.js";
 
-export function isBust(playerState) {
+export function isBust(playerState,discardPile) {
     const numberPlayerCards = filterToNumberCards(playerState.cards)
 
     const uniqueCards = new Set()
@@ -10,13 +10,20 @@ export function isBust(playerState) {
     })
 
     if (uniqueCards.size !== numberPlayerCards.length) {
-        applyBust(playerState)
+        applyBust(playerState, discardPile)
     }
 
 }
 
-function applyBust(playerState) {
+function applyBust(playerState, discardPile) {
     if (playerState.hasSecondChance) {
+        const scIndex = playerState.cards.findIndex(
+            c => c.type === CardType.ACTION && c.value === ActionKind.SECOND_CHANCE
+        )
+        if (scIndex !== -1) {
+            discardPile.push(playerState.cards.splice(scIndex, 1)[0])
+        }
+
         playerState.hasSecondChance = false
         return
     }
