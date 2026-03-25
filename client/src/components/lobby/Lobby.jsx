@@ -16,6 +16,7 @@ export default function Lobby() {
     const [step,      setStep]      = useState('username')
     const [username,  setUsername]  = useState('')
     const [joinCode,  setJoinCode]  = useState('')
+    const [loading, setLoading] = useState(false)
     const [gameCode,  setGameCode]  = useState(null)   // code de la partie rejointe/créée
     const [players,   setPlayers]   = useState([])     // [{ id, name, isHost }]
     const [isHost,    setIsHost]    = useState(false)
@@ -23,22 +24,60 @@ export default function Lobby() {
     const [copied,    setCopied]    = useState(false)
     const [error,     setError]     = useState('')
 
+    // ── Listener d'erreur global — indépendant du step ────
+    useEffect(() => {
+        const onError = ({ message }) => {
+            setError(message)
+            // Si on était en train de rejoindre, on revient au formulaire
+            setStep(prev => prev === 'waiting' ? 'join-form' : prev)
+            setLoading(false)
+        }
+        on('error', onError)
+        return () => off('error', onError)
+    }, [on, off])
+
     // ── Socket listeners (waiting room) ───────────────────
     useEffect(() => {
         if (step !== 'waiting') return
 
-        const onPlayerJoined = (data) => setPlayers(data.players)
-        const onPlayerLeft   = (data) => setPlayers(data.players)
-        const onGameStarted  = ()     => { /* TODO: naviguer vers la partie */ }
+        const onGameCreated = ({ gameId, playerId }) => {
+            setGameCode(gameId)
+            setMyId(playerId)
+            setIsHost(true)
+        }
 
-        on('lobby:playerJoined', onPlayerJoined)
-        on('lobby:playerLeft',   onPlayerLeft)
-        on('game:started',       onGameStarted)
+        const onGameJoined = ({ playerId }) => {
+            setMyId(playerId)
+        }
+
+        const onGameStateUpdate = (gameState) => {
+            const playerList = gameState.players.map(p => ({
+                id:     p.id,
+                name:   p.name,
+                isHost: p.id === gameState.hostId,
+            }))
+            setPlayers(playerList)
+            setGameCode(prev => prev ?? gameState.id)
+            if (gameState.status === 'playing') {
+                console.log('game is : ', gameState)
+            }
+        }
+
+        const onGameStarted = (gameState) => {
+            console.log('[game-started] navigating to game', gameState)
+            // TODO: setScreen('game') quand la vue de jeu sera prête
+        }
+
+        on('game-created',      onGameCreated)
+        on('game-joined',       onGameJoined)
+        on('game-state-update', onGameStateUpdate)
+        on('game-started',      onGameStarted)
 
         return () => {
-            off('lobby:playerJoined', onPlayerJoined)
-            off('lobby:playerLeft',   onPlayerLeft)
-            off('game:started',       onGameStarted)
+            off('game-created',      onGameCreated)
+            off('game-joined',       onGameJoined)
+            off('game-state-update', onGameStateUpdate)
+            off('game-started',      onGameStarted)
         }
     }, [step, on, off])
 
@@ -54,44 +93,26 @@ export default function Lobby() {
     }
 
     const createGame = () => {
-        // TODO: émettre 'lobby:create' et recevoir { gameCode, playerId, players }
-        // emit('lobby:create', { playerName: username })
-        // on('lobby:created', ({ gameCode, playerId, players }) => { ... })
-
-        // Mock en attendant l'event serveur
-        const mockCode = Math.random().toString(36).slice(2, 6).toUpperCase()
-        setGameCode(mockCode)
-        setIsHost(true)
-        setMyId('me')
-        setPlayers([{ id: 'me', name: username, isHost: true }])
+        setError('')
         setStep('waiting')
+        emit('create-game', { playerName: username })
     }
 
     const joinGame = () => {
-        const code = joinCode.trim().toUpperCase()
+        const code = joinCode.trim()
         if (code.length < 4) {
             setError('Code invalide.')
             return
         }
         setError('')
-
-        // TODO: émettre 'lobby:join' et recevoir { gameCode, playerId, players }
-        // emit('lobby:join', { playerName: username, gameCode: code })
-
-        // Mock en attendant l'event serveur
-        setGameCode(code)
+        setLoading(true)
         setIsHost(false)
-        setMyId('me')
-        setPlayers([
-            { id: 'host', name: 'HostPlayer', isHost: true },
-            { id: 'me',   name: username,    isHost: false },
-        ])
         setStep('waiting')
+        emit('join-game', { gameId: code, playerName: username })
     }
 
     const startGame = () => {
-        // TODO: émettre 'game:start'
-        // emit('game:start', { gameCode })
+        emit('start-game', { gameId: gameCode })
         console.log('TODO: game:start →', gameCode)
     }
 
@@ -197,9 +218,8 @@ export default function Lobby() {
                                 className="lobby-input"
                                 type="text"
                                 placeholder="XXXX"
-                                maxLength={6}
                                 value={joinCode}
-                                onChange={e => { setJoinCode(e.target.value.toUpperCase()); setError('') }}
+                                onChange={e => { setJoinCode(e.target.value); setError('') }}
                                 onKeyDown={e => e.key === 'Enter' && joinGame()}
                                 autoFocus
                             />

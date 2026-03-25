@@ -113,20 +113,19 @@ export function resolveActionCard(round, card, sourcePlayerId, targetPlayerId) {
     const effectiveTargetId = (actives.length === 0 || !targetPlayerId)
         ? sourcePlayerId
         : targetPlayerId
+        switch (card.value) {
+            case ActionKind.FREEZE:
+                applyFreeze(round, effectiveTargetId)
+                round.discardPile.push(card)
+                break
 
-    switch (card.value) {
-        case ActionKind.FREEZE:
-            applyFreeze(round, effectiveTargetId)
-            round.discardPile.push(card)
-            break
+            case ActionKind.FLIP_THREE:
+                applyFlipThree(round, effectiveTargetId, resolveActionCard)
+                round.discardPile.push(card)
+                break
 
-        case ActionKind.FLIP_THREE:
-            applyFlipThree(round, effectiveTargetId, resolveActionCard)
-            round.discardPile.push(card)
-            break
-
-        case ActionKind.SECOND_CHANCE:
-            addSecondChance(round, effectiveTargetId, card)
-            break
-    }
+            case ActionKind.SECOND_CHANCE:
+                addSecondChance(round, effectiveTargetId, card)
+                break
+        }
 }
