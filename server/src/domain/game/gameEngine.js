@@ -54,36 +54,52 @@ function computeScoreForStayedPlayers(round) {
  * @returns {{ roundOver: boolean, flipSeven: boolean }}
  */
 export function processSlay(round, playerId, targetPlayerId) {
-    const playerState = round.playerStates[playerId]
-    const card = drawCard(round.deck, round.discardPile)
+    const playerState = round.playerStates[playerId];
+    const card = drawCard(round.deck, round.discardPile);
 
     if (card.type === CardType.ACTION) {
-        resolveActionCard(round, card, playerId, targetPlayerId)
-        computeScoreForStayedPlayers(round)
-        const flipSeven = Object.values(round.playerStates).some(ps => ps.hasFlipSeven)
-        if (flipSeven) round.activePlayerIds = []
-        return { roundOver: isRoundOver(round), flipSeven }
+        // Freeze et FlipThree nécessitent une cible
+        if ( card.value === ActionKind.FREEZE || card.value === ActionKind.FLIP_THREE) {
+            // Stocker l'action en attente le temps que le joueur choississe sa cible
+            round.pendingAction = { card, sourcePlayerId: playerId };
+            return { roundOver: false, flipSeven: false, needsTarget: true, card };
+        }
+
+        // SecondChance → résolution immédiate, pas de cible
+        resolveActionCard(round, card, playerId, undefined);
+        computeScoreForStayedPlayers(round);
+        return {
+        roundOver: isRoundOver(round),
+        flipSeven: false,
+        needsTarget: false,
+        card,
+        };
     }
 
     // NUMBER ou MODIFIER
-    playerState.cards.push(card)
-    isBust(playerState, round.discardPile)
+    playerState.cards.push(card);
+    isBust(playerState, round.discardPile);
 
     if (playerState.hasBusted) {
-        computeRoundScore(playerState)
-        removeFromActive(round, playerId)
-        return { roundOver: isRoundOver(round), flipSeven: false }
+        computeRoundScore(playerState);
+        removeFromActive(round, playerId);
+        return {
+        roundOver: isRoundOver(round),
+        flipSeven: false,
+        needsTarget: false,
+        card,
+        };
     }
 
     if (isFlipSeven(playerState.cards)) {
-        playerState.hasFlipSeven = true
-        computeRoundScore(playerState)
-        round.activePlayerIds = []
-        return { roundOver: true, flipSeven: true }
+        playerState.hasFlipSeven = true;
+        computeRoundScore(playerState);
+        round.activePlayerIds = [];
+        return { roundOver: true, flipSeven: true, needsTarget: false, card };
     }
 
-    computeRoundScore(playerState)
-    return { roundOver: false, flipSeven: false }
+    computeRoundScore(playerState);
+    return { roundOver: false, flipSeven: false, needsTarget: false, card };
 }
 
 /**

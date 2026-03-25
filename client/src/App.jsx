@@ -3,7 +3,7 @@ import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
-import Lobby from './components/Lobby/Lobby'
+import Lobby from './components/lobby/Lobby'
 import CardDemo from './components/card/CardDemo'
 import GameBoard from "./components/gameBoard/GameBoard.jsx";
 
@@ -16,6 +16,29 @@ const DEMO_CARDS = [
   { id: '6', type: 'modifier', value: 'x2',  label: '×2' },
   { id: '7', type: 'modifier', value: '+4',  label: '+4' },
 ]
+
+/* Pour appeler l'écran des scores et l'écran de victoire
+{view === 'roundSummary' && gameState && (
+            <RoundSummary
+                gameState={gameState}
+                isHost={isHost}
+                myId={myId}
+                roundNumber={roundNumber}
+                onContinue={handleContinue}
+            />
+        )}
+
+        {view === 'victory' && gameState && (
+            <Victory
+                gameState={gameState}
+                winnerIds={winnerIds}
+                myId={myId}
+                isHost={isHost}
+                onPlayAgain={handlePlayAgain}
+                onLobby={handleLobby}
+            />
+        )}
+ */
 
 function App() {
   return <Lobby />
