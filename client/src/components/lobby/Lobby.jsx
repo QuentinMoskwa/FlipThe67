@@ -117,9 +117,26 @@ export default function Lobby({onGameReady}) {
     }
 
     const copyCode = useCallback(() => {
-        navigator.clipboard.writeText(gameCode)
-        setCopied(true)
-        setTimeout(() => setCopied(false), 1500)
+        const fallback = () => {
+            const ta = document.createElement('textarea')
+            ta.value = gameCode
+            ta.style.cssText = 'position:fixed;opacity:0;pointer-events:none'
+            document.body.appendChild(ta)
+            ta.focus()
+            ta.select()
+            document.execCommand('copy')
+            document.body.removeChild(ta)
+            setCopied(true)
+            setTimeout(() => setCopied(false), 1500)
+        }
+
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(gameCode)
+                .then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500) })
+                .catch(fallback)
+        } else {
+            fallback()
+        }
     }, [gameCode])
 
     const stepIndex = {username: 0, menu: 1, 'join-form': 1, waiting: 2}
