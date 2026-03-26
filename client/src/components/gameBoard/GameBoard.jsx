@@ -1,23 +1,11 @@
 import {useEffect, useCallback, useState} from 'react'
 import {Card} from '../card/Card.jsx'
+import RulesButton from '../rulesButton/RulesButton.jsx'
 import PlayerArea from '../playerArea/PlayerArea.jsx'
+import TargetModal from '../targetModal/TargetModal.jsx'
+import DrawnCardReveal from '../drawnCardReveal/DrawnCardReveal.jsx'
 import {useSocket} from '../../hooks/useSocket.js'
 import './GameBoard.css'
-
-// ─── Normalisation des cartes action ─────────────────────────
-const ACTION_VALUE_MAP = { flipThree: 'flip3', secondChance: 'second_chance' }
-function normalizeCard(card) {
-    if (card?.type !== 'action') return card
-    return { ...card, value: ACTION_VALUE_MAP[card.value] ?? card.value }
-}
-
-// ─── Résultats de pioche ──────────────────────────────────────
-const DRAW_RESULT_CONFIG = {
-    bust:      { label: 'BUST !',    color: '#e74c3c', glow: 'rgba(231,76,60,0.4)' },
-    flipSeven: { label: 'FLIP 7 !',  color: '#f1c40f', glow: 'rgba(241,196,15,0.4)' },
-    action:    { label: 'ACTION',    color: '#f59e0b', glow: 'rgba(245,158,11,0.3)' },
-    normal:    null,
-}
 
 function computeSlots(players, myId) {
     const me = players.find(p => p.id === myId)
@@ -44,100 +32,6 @@ const PHASE_LABELS = {
     ended: 'Fin de manche',
 }
 
-// ─── Révélation de la carte piochée ──────────────────────────
-function DrawnCardReveal({ reveal, onDismiss }) {
-    const [flipped,  setFlipped]  = useState(false)
-    const [hiding,   setHiding]   = useState(false)
-
-    useEffect(() => {
-        const flipTimer = setTimeout(() => setFlipped(true), 100)
-        const hideTimer = setTimeout(() => {
-            setHiding(true)
-            setTimeout(onDismiss, 150)
-        }, 1100)
-        return () => { clearTimeout(flipTimer); clearTimeout(hideTimer) }
-    }, [onDismiss])
-
-    const config = DRAW_RESULT_CONFIG[reveal.result] ?? null
-    const card   = normalizeCard(reveal.card)
-
-    return (
-        <div className={`card-reveal-backdrop ${hiding ? 'hiding' : ''}`}>
-            <div className="card-reveal-inner">
-                <p className="card-reveal-player">
-                    {reveal.playerName} pioche
-                </p>
-                <div
-                    className="card-reveal-card"
-                    style={config ? { filter: `drop-shadow(0 0 18px ${config.glow})` } : undefined}
-                >
-                    <Card card={card} faceDown={!flipped} />
-                </div>
-                {config && (
-                    <p
-                        className="card-reveal-label"
-                        style={{ color: config.color }}
-                    >
-                        {config.label}
-                    </p>
-                )}
-            </div>
-        </div>
-    )
-}
-
-// ─── Modal de ciblage ─────────────────────────────────────────
-function TargetModal({card, targets, onSelect}) {
-    return (
-        <div style={{
-            position: 'fixed', inset: 0, zIndex: 100,
-            background: 'rgba(0,0,0,0.7)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-            <div style={{
-                background: '#101828',
-                border: '1px solid rgba(126,168,212,0.3)',
-                borderRadius: 16, padding: '28px 32px',
-                display: 'flex', flexDirection: 'column', gap: 16,
-                minWidth: 280,
-            }}>
-                <p style={{
-                    color: '#a3c2e8',
-                    fontSize: '0.78rem',
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    margin: 0
-                }}>
-                    Choisir une cible
-                </p>
-                <p style={{color: '#e8f0f8', fontSize: '0.9rem', margin: 0}}>
-                    Carte : <strong>{card?.value}</strong>
-                </p>
-                <div style={{display: 'flex', flexDirection: 'column', gap: 8}}>
-                    {targets.map(t => (
-                        <button
-                            key={t.id}
-                            onClick={() => onSelect(t.id)}
-                            style={{
-                                padding: '10px 16px',
-                                background: 'rgba(126,168,212,0.1)',
-                                border: '1px solid rgba(126,168,212,0.25)',
-                                borderRadius: 8,
-                                color: '#e8f0f8',
-                                cursor: 'pointer',
-                                fontSize: '0.88rem',
-                                textAlign: 'left',
-                            }}
-                        >
-                            {t.name}
-                        </button>
-                    ))}
-                </div>
-            </div>
-        </div>
-    )
-}
-
 export default function GameBoard({gameState, myId}) {
     const {round, players} = gameState
     const phase = round?.phase ?? 'playing'
@@ -146,7 +40,7 @@ export default function GameBoard({gameState, myId}) {
     const {emit, on, off} = useSocket()
 
     const [pendingTarget, setPendingTarget] = useState(null)
-    const [drawnCard,    setDrawnCard]    = useState(null)
+    const [drawnCard, setDrawnCard] = useState(null)
     const dismissReveal = useCallback(() => setDrawnCard(null), [])
 
     const slots = computeSlots(players, myId)
@@ -159,6 +53,7 @@ export default function GameBoard({gameState, myId}) {
         && phase === 'playing'
         && !myState.hasBusted
         && !myState.hasStayed
+        && !myState.hasFrozen
         && !pendingTarget
 
     // ── Listeners ───────────────────────────────────────────────
@@ -172,19 +67,18 @@ export default function GameBoard({gameState, myId}) {
         }
 
         const onCardDrawn = (data) => {
-            // On repart de zéro à chaque nouvelle carte pour éviter les états résiduels
             setDrawnCard(null)
             requestAnimationFrame(() => setDrawnCard(data))
         }
 
-        on('error',                  onError)
+        on('error', onError)
         on('action-requires-target', onActionRequiresTarget)
-        on('card-drawn',             onCardDrawn)
+        on('card-drawn', onCardDrawn)
 
         return () => {
-            off('error',                  onError)
+            off('error', onError)
             off('action-requires-target', onActionRequiresTarget)
-            off('card-drawn',             onCardDrawn)
+            off('card-drawn', onCardDrawn)
         }
     }, [on, off])
 
@@ -194,13 +88,13 @@ export default function GameBoard({gameState, myId}) {
 
         const activePlayers = players.filter(p => {
             const state = playerStates[p.id]
-            return state && !state.hasBusted && !state.hasStayed
+            return state && !state.hasBusted && !state.hasStayed && !state.hasFrozen
         })
 
         // Plus aucune cible disponible → annule le ciblage
         if (activePlayers.length === 0) {
             setPendingTarget(null)
-            emit('target-player', { gameId: gameState.id, targetPlayerId: myId })
+            emit('target-player', {gameId: gameState.id, targetPlayerId: myId})
             return
         }
 
@@ -212,7 +106,6 @@ export default function GameBoard({gameState, myId}) {
         if (updatedTargets.length !== pendingTarget.availableTargets.length) {
             setPendingTarget(prev => ({ ...prev, availableTargets: updatedTargets }))
         }
-
     }, [gameState, pendingTarget, players, playerStates, myId, emit, gameState.id])
 
     // ── Handlers ────────────────────────────────────────────────
@@ -236,7 +129,7 @@ export default function GameBoard({gameState, myId}) {
     }, [emit, gameState.id])
 
     // ── Banner ──────────────────────────────────────────────────
-    const bannerState = (myState.hasBusted || myState.hasStayed)
+    const bannerState = (myState.hasBusted || myState.hasStayed || myState.hasFrozen)
         ? 'state-inactive'
         : isMyTurn
             ? 'state-my-turn'
@@ -247,11 +140,13 @@ export default function GameBoard({gameState, myId}) {
             ? <strong>Choisissez une cible</strong>
             : myState.hasBusted
                 ? 'Vous avez busté'
-                : myState.hasStayed
-                    ? 'Vous avez stay'
-                    : isMyTurn
-                        ? <strong>Votre tour</strong>
-                        : <>Tour de <strong>{currentPlayer?.name ?? '…'}</strong></>
+                : myState.hasFrozen
+                    ? 'Vous avez été freezé'
+                    : myState.hasStayed
+                        ? 'Vous avez stay'
+                        : isMyTurn
+                            ? <strong>Votre tour</strong>
+                            : <>Tour de <strong>{currentPlayer?.name ?? '…'}</strong></>
         : null
 
     // ── Rendu des slots ─────────────────────────────────────────
@@ -305,6 +200,7 @@ export default function GameBoard({gameState, myId}) {
 
     return (
         <div className="gameboard-root">
+            <RulesButton />
 
             {/* Révélation de la carte piochée — visible par tous */}
             {drawnCard && (
@@ -343,7 +239,6 @@ export default function GameBoard({gameState, myId}) {
             {renderSlot('bottom')}
 
             <div className="gameboard-center">
-
                 <div className={`phase-banner ${bannerState}`}>
                     <div className="phase-banner-dot"/>
                     <span>{PHASE_LABELS[phase] ?? 'En jeu'}</span>

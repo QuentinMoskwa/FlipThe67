@@ -1,23 +1,5 @@
 /* ── Tokens ──────────────────────────────────────────────── */
-.victory-root {
-    --bg:         #080e1a;
-    --surface:    #101828;
-    --surface-hi: #1a2640;
-    --border: rgba(126, 168, 212, 0.16);
-    --border-hi:  rgba(126,168,212,0.30);
-    --slate:      #7ea8d4;
-    --slate-hi:   #a3c2e8;
-    --slate-lo:   #3e6490;
-    --frost:      #e8f0f8;
-    --frost-dim:  #8aaac8;
-    --gold:       #c9a84c;
-    --gold-dim:   #8a6e2a;
-    --radius:     10px;
-    --radius-sm:  7px;
-    --font-title: 'Cormorant Garamond', Georgia, serif;
-    --font-body:  'DM Sans', system-ui, sans-serif;
-    --font-mono:  'DM Mono', monospace;
-}
+
 
 /* ── Plein écran ─────────────────────────────────────────── */
 .victory-root {

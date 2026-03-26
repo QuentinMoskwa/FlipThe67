@@ -1,4 +1,7 @@
 import {useState, useEffect, useRef, useCallback} from 'react'
+import {useTheme} from '../../hooks/useTheme'
+import ThemePicker from '../themePicker/ThemePicker.jsx'
+import RulesButton from '../rulesButton/RulesButton.jsx'
 import {useSocket} from '../../hooks/useSocket'
 import {useCardCanvas} from '../../hooks/useCardCanvas'
 import './Lobby.css'
@@ -14,6 +17,8 @@ import './Lobby.css'
 export default function Lobby({onGameReady}) {
     const canvasRef = useRef(null)
     useCardCanvas(canvasRef)
+
+    const { theme, setTheme } = useTheme()
 
     const {connected, emit, on, off, savePlayerSession} = useSocket()
 
@@ -160,6 +165,8 @@ export default function Lobby({onGameReady}) {
     // ── Render ─────────────────────────────────────────────────
     return (
         <div className="lobby-root">
+            <ThemePicker theme={theme} setTheme={setTheme} />
+            <RulesButton />
             <canvas ref={canvasRef} className="lobby-canvas"/>
 
             <div className="lobby-card">

@@ -4,7 +4,6 @@ import Lobby from './components/lobby/Lobby'
 import GameBoard from './components/gameBoard/GameBoard'
 import RoundSummary from './components/roundSummary/RoundSummary'
 import Victory from './components/victory/Victory'
-import './App.css'
 
 export default function App() {
     const {emit, on, off} = useSocket()

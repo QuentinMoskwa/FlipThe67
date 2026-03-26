@@ -1,25 +1,3 @@
-.rs-root {
-    --bg:         #080e1a;
-    --surface:    #101828;
-    --surface-hi: #1a2640;
-    --border:     rgba(126,168,212,0.14);
-    --border-hi:  rgba(126,168,212,0.30);
-    --slate:      #7ea8d4;
-    --slate-hi:   #a3c2e8;
-    --slate-lo:   #3e6490;
-    --frost:      #e8f0f8;
-    --frost-dim:  #8aaac8;
-    --bust:       #7a2020;
-    --bust-dim:   rgba(122,32,32,0.25);
-    --flip7:      #1a5c3a;
-    --flip7-dim:  rgba(26,92,58,0.25);
-    --radius:     10px;
-    --radius-sm:  7px;
-    --font-title: 'Cormorant Garamond', Georgia, serif;
-    --font-body:  'DM Sans', system-ui, sans-serif;
-    --font-mono:  'DM Mono', monospace;
-}
-
 /* ── Overlay ─────────────────────────────────────────────── */
 .rs-root {
     position: fixed;
@@ -36,7 +14,7 @@
 /* ── Panel ───────────────────────────────────────────────── */
 .rs-panel {
     width: min(520px, 100%);
-    background: rgb(8, 18, 34);
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 16px;
     overflow: hidden;
@@ -191,7 +169,7 @@
     color: var(--frost-dim);
 }
 
-.rs-card-chip.chip-number   { color: #7ea8d4; border-color: rgba(126,168,212,0.25); }
+.rs-card-chip.chip-number   { color: var(--slate); border-color: rgba(126,168,212,0.25); }
 .rs-card-chip.chip-action   { color: #e0a86a; border-color: rgba(224,168,106,0.25); }
 .rs-card-chip.chip-modifier { color: #7ec89a; border-color: rgba(126,200,154,0.25); }
 

@@ -1,28 +1,5 @@
 /* ── Tokens ─────────────────────────────────────────────── */
-.lobby-root {
-    --bg:          #080e1a;
-    --bg-mid:      #0d1524;
-    --bg-light:    #121e30;
-    --surface:     #101828;
-    --surface-hi:  #1a2640;
 
-    --slate:       #7ea8d4;
-    --slate-hi:    #a3c2e8;
-    --slate-lo:    #3e6490;
-    --navy:        #1a2f4a;
-    --frost:       #e8f0f8;
-    --frost-dim:   #8aaac8;
-
-    --border:      rgba(126,168,212,0.14);
-    --border-hi:   rgba(126,168,212,0.30);
-    --danger:      #7a2020;
-
-    --radius:      12px;
-    --radius-sm:   8px;
-    --font-title:  'DM Sans', system-ui, sans-serif;
-    --font-body:   'DM Sans', system-ui, sans-serif;
-    --font-mono:   'DM Mono', monospace;
-}
 
 /* ── Layout ─────────────────────────────────────────────── */
 .lobby-root {
@@ -166,7 +143,7 @@
     border: none;
     border-radius: var(--radius-sm);
     background: var(--slate);
-    color: var(--bg);
+    color: var(--frost);
     font-family: var(--font-body);
     font-size: 0.88rem;
     font-weight: 600;
