@@ -178,6 +178,5 @@ export function createRound(players, deck, startingPlayerIndex) {
  */
 export function createGameState(players) {
     const scores = Object.fromEntries(players.map(p => [p.id, 0]))
-    const gameId = generateGameCode()
-    return new GameState(gameId, players, scores)
+    return new GameState(crypto.randomUUID(), players, scores)
 }
