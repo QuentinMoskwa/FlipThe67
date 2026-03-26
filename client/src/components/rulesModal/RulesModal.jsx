@@ -23,7 +23,7 @@ const RULES_SECTIONS = [
         content: 'Piocher une carte numérotée dont la valeur est déjà dans votre main provoque un Bust. Votre main est vidée et votre score de manche est 0.',
     },
     {
-        title: 'lip 7',
+        title: 'Flip 7',
         content: 'Avoir exactement 7 cartes numérotées toutes différentes en main déclenche le Flip 7. La manche se termine immédiatement et vous recevez +15 pts bonus.',
     },
     {
