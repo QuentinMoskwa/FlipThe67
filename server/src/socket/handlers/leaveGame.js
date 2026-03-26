@@ -25,6 +25,14 @@ export function handleLeaveGame(io, socket) {
     game.players.splice(playerIndex, 1);
     delete game.scores[playerId];
     delete game.round?.playerStates[playerId];
+    // retirer du pendingAction si c'était lui la cible
+    if (game.round?.pendingAction?.targetPlayerId === playerId) {
+      delete game.round.pendingAction;
+    }
+    // retirer des activePlayerIds s'il était actif
+    if (game.round?.activePlayerIds) {
+      game.round.activePlayerIds = game.round.activePlayerIds.filter(id => id !== playerId);
+    }
 
     // Si le joueur était le host, élire un nouveau host
     if (game.hostId === playerId) {
