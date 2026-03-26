@@ -24,8 +24,9 @@ import {computeRoundScore} from "./scoring.js"
 export function applyFreeze(round, targetPlayerId) {
     const playerState = round.playerStates[targetPlayerId]
 
-    if (playerState.hasBusted || playerState.hasStayed) return
+    if (playerState.hasBusted || playerState.hasStayed || playerState.hasFrozen) return
 
+    playerState.hasFrozen = true
     playerState.hasStayed = true
     removeFromActive(round, targetPlayerId)
 }

@@ -145,3 +145,9 @@
     color: #f1c40f;
     border: 1px solid rgba(241,196,15,0.25);
 }
+
+.player-area-status.frozen {
+    background: rgba(59, 130, 246, 0.12);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.25);
+}
