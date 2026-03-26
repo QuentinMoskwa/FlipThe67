@@ -1,19 +1,11 @@
 import { Card } from '../card/Card'
 import './PlayerArea.css'
 
-const ACTION_VALUE_MAP = {
-    flipThree:    'flip3',
-    secondChance: 'second_chance',
-}
-
-function normalizeCard(card) {
-    if (card.type !== 'action') return card
-    return { ...card, value: ACTION_VALUE_MAP[card.value] ?? card.value }
-}
-
+// ─── Statut du joueur ────────────────────────────────────────
 function resolveStatus(playerState) {
     if (playerState.hasFlipSeven) return 'flip7'
     if (playerState.hasBusted)    return 'busted'
+    if (playerState.hasFrozen)    return 'frozen'
     if (playerState.hasStayed)    return 'stayed'
     return 'active'
 }
@@ -21,6 +13,7 @@ function resolveStatus(playerState) {
 const STATUS_LABELS = {
     active: 'Actif',
     stayed: 'Stay',
+    frozen: 'Freeze',
     busted: 'Bust',
     flip7:  'Flip 7 !',
 }
@@ -33,7 +26,7 @@ const STATUS_LABELS = {
  */
 export default function PlayerArea({ player, playerState, isCurrentTurn, isYou }) {
     const status     = resolveStatus(playerState)
-    const isInactive = status === 'stayed' || status === 'busted'
+    const isInactive = status === 'stayed' || status === 'busted' || status === 'frozen'
     const cards      = playerState.cards ?? []
 
     const modifierCards = cards.filter(c => c.type === 'modifier' || c.type === 'action')
@@ -56,13 +49,13 @@ export default function PlayerArea({ player, playerState, isCurrentTurn, isYou }
                         {modifierCards.length > 0 && (
                             <div className="player-area-cards modifiers-row">
                                 {modifierCards.map(card => (
-                                    <Card key={card.id} card={normalizeCard(card)} faceDown={false} />
+                                    <Card key={card.id} card={card} faceDown={false} />
                                 ))}
                             </div>
                         )}
                         <div className="player-area-cards numbers-row">
                             {numberCards.map(card => (
-                                <Card key={card.id} card={normalizeCard(card)} faceDown={false} />
+                                <Card key={card.id} card={card} faceDown={false} />
                             ))}
                         </div>
                     </>

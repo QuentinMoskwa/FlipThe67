@@ -35,7 +35,22 @@ const MODIFIER_VALUES = {
     '+10': { value: '+10' },
 }
 
+// ─── Normalisation des valeurs d'action ──────────────────────
+// Le backend émet 'flipThree'/'secondChance'.
+// Les clés internes de Card sont 'flip3'/'second_chance'.
+// On normalise ici une fois pour toutes — aucun appelant n'a besoin d'un ACTION_VALUE_MAP.
+const ACTION_VALUE_MAP = {
+    flipThree:    'flip3',
+    secondChance: 'second_chance',
+}
+
+function normalizeActionValue(card) {
+    if (card?.type !== 'action') return card
+    return { ...card, value: ACTION_VALUE_MAP[card.value] ?? card.value }
+}
+
 function CardFront({ card }) {
+    card = normalizeActionValue(card)
     // SecondChance a son propre style visuel
     const configKey = card.value === 'second_chance' ? 'second_chance' : card.type
     const cardConfig = TYPE_CONFIG[configKey] ?? TYPE_CONFIG.number
