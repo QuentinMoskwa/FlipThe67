@@ -1,19 +1,19 @@
-import { useMemo } from 'react'
+import {useMemo} from 'react'
 import './Victory.css'
 
 // ─── Particules de fond ────────────────────────────────────
 
-const NUMS = ['0','1','2','3','4','5','6','7','8','9','10','11','12']
+const NUMS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
 
 function Particles() {
     const particles = useMemo(() => (
-        Array.from({ length: 16 }, (_, i) => ({
-            id:       i,
-            label:    NUMS[Math.floor(Math.random() * NUMS.length)],
-            left:     `${5 + Math.random() * 90}%`,
+        Array.from({length: 16}, (_, i) => ({
+            id: i,
+            label: NUMS[Math.floor(Math.random() * NUMS.length)],
+            left: `${5 + Math.random() * 90}%`,
             duration: `${6 + Math.random() * 10}s`,
-            delay:    `${Math.random() * 6}s`,
-            size:     `${12 + Math.random() * 14}px`,
+            delay: `${Math.random() * 6}s`,
+            size: `${12 + Math.random() * 14}px`,
         }))
     ), [])
 
@@ -24,11 +24,11 @@ function Particles() {
                     key={p.id}
                     className="victory-particle"
                     style={{
-                        left:            p.left,
-                        bottom:          '-30px',
-                        fontSize:        p.size,
+                        left: p.left,
+                        bottom: '-30px',
+                        fontSize: p.size,
                         animationDuration: p.duration,
-                        animationDelay:  p.delay,
+                        animationDelay: p.delay,
                     }}
                 >
           {p.label}
@@ -61,7 +61,7 @@ function buildLeaderboard(players, scores, winnerIds) {
         }
         return {
             player,
-            score:    scores[player.id] ?? 0,
+            score: scores[player.id] ?? 0,
             rank,
             isWinner: winnerIds.includes(player.id),
         }
@@ -79,8 +79,8 @@ function buildLeaderboard(players, scores, winnerIds) {
  * @param {Function}  props.onPlayAgain - callback "Rejouer" (host uniquement)
  * @param {Function}  props.onLobby     - callback "Retour au lobby"
  */
-export default function Victory({ gameState, winnerIds, myId, isHost, onPlayAgain, onLobby }) {
-    const { players, scores } = gameState
+export default function Victory({gameState, winnerIds, myId, isHost, onPlayAgain, onLobby}) {
+    const {players, scores} = gameState
 
     const leaderboard = useMemo(
         () => buildLeaderboard(players, scores, winnerIds),
@@ -92,12 +92,12 @@ export default function Victory({ gameState, winnerIds, myId, isHost, onPlayAgai
         .join(' & ')
 
     const winnerScore = scores[winnerIds[0]] ?? 0
-    const isTie       = winnerIds.length > 1
-    const iAmWinner   = winnerIds.includes(myId)
+    const isTie = winnerIds.length > 1
+    const iAmWinner = winnerIds.includes(myId)
 
     return (
         <div className="victory-root">
-            <Particles />
+            <Particles/>
 
             <div className="victory-panel">
 
@@ -126,7 +126,7 @@ export default function Victory({ gameState, winnerIds, myId, isHost, onPlayAgai
                 <div className="victory-leaderboard">
                     <div className="victory-lb-title">Classement final</div>
 
-                    {leaderboard.map(({ player, score, rank, isWinner }) => (
+                    {leaderboard.map(({player, score, rank, isWinner}) => (
                         <div
                             key={player.id}
                             className={`victory-lb-row ${isWinner ? 'is-winner' : ''}`}
@@ -138,7 +138,7 @@ export default function Victory({ gameState, winnerIds, myId, isHost, onPlayAgai
                             <div className={`victory-lb-name ${player.id === myId ? 'is-me' : ''}`}>
                                 {player.name}
                                 {player.id === myId && (
-                                    <span style={{ color: 'var(--slate-lo)', fontSize: '0.7rem', marginLeft: 6 }}>
+                                    <span style={{color: 'var(--slate-lo)', fontSize: '0.7rem', marginLeft: 6}}>
                     (vous)
                   </span>
                                 )}
@@ -159,7 +159,7 @@ export default function Victory({ gameState, winnerIds, myId, isHost, onPlayAgai
                         </button>
                     )}
                     <button className="victory-btn-lobby" onClick={onLobby}>
-                        Retour au lobby
+                        Retour au logoby
                     </button>
                 </div>
 

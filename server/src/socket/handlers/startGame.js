@@ -3,6 +3,7 @@ import { createDeck } from "../../domain/deck.js";
 import { getGame } from "../utils/gameStorage.js";
 import { broadcastGameState } from "../utils/broadcast.js";
 import { GameStatus, RoundPhase } from "../../domain/constants.js";
+import { runDealingPhase } from "../../domain/game/gameEngine.js";
 
 export function handleStartGame(io, socket) {
   socket.on("start-game", ({ gameId }) => {
@@ -21,6 +22,10 @@ export function handleStartGame(io, socket) {
     game.status = GameStatus.PLAYING;
     game.round = createRound(game.players, createDeck(), 0);
     game.round.phase = RoundPhase.DEALING;
+
+    // Exécuter la phase de distribution
+    runDealingPhase(game);
+    game.round.phase = RoundPhase.PLAYING;
 
     broadcastGameState(io, gameId);
     console.log(

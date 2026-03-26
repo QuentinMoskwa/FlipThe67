@@ -6,6 +6,8 @@ import { Server } from "socket.io";
 import { handleCreateGame } from "./socket/handlers/createGame.js";
 import { handleJoinGame } from "./socket/handlers/joinGame.js";
 import { handleStartGame } from "./socket/handlers/startGame.js";
+import { handlePlayerAction } from "./socket/handlers/playerAction.js";
+import { handleTargetPlayer } from "./socket/handlers/targetPlayer.js";
 
 dotenv.config();
 
@@ -13,10 +15,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 const corsOptions = {
-  origin:
-    process.env.NODE_ENV === "production"
-      ? process.env.CLIENT_URL
-      : ["http://localhost:5173", "http://10.213.175.23:5173"],
+  origin: ["http://localhost:5173", process.env.CORS_ORIGIN],
   methods: ["GET", "POST"],
 };
 
@@ -44,5 +43,4 @@ io.on("connection", (socket) => {
 httpServer.listen(PORT, "0.0.0.0", () => {
   console.log(`Server listening on:`);
   console.log(`  http://localhost:${PORT}`);
-  console.log(`  http://10.213.175.23:${PORT}`);
 });

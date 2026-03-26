@@ -5,7 +5,7 @@ import {useRef} from "react";
 // ─── Helpers ──────────────────────────────────────────────
 
 /**
- * Chip d'une carte jouée — couleur selon le type.
+ * Chip d'une carte jouée - couleur selon le type.
  */
 function CardChip({ card }) {
     const label =
@@ -130,7 +130,7 @@ export default function RoundSummary({ gameState, isHost, myId, roundNumber, onC
                                     </div>
                                     <div className="rs-cards-played">
                                         {state.cards.length === 0 ? (
-                                            <span style={{ fontSize: '0.7rem', color: 'var(--slate-lo)' }}>—</span>
+                                            <span style={{ fontSize: '0.7rem', color: 'var(--slate-lo)' }}>-</span>
                                         ) : (
                                             state.cards.map(card => (
                                                 <CardChip key={card.id} card={card} />

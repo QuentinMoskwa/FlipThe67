@@ -63,7 +63,7 @@
 .player-slot-right .player-area { transform: rotate(-90deg); }
 
 /* ── Wrapper bottom : PlayerArea + boutons en flex normal ────── */
-/* On ne center PAS le wrapper mais son contenu — la PlayerArea + boutons
+/* On ne center PAS le wrapper mais son contenu - la PlayerArea + boutons
    forment une seule unité centrée dans le slot */
 .player-area-wrapper {
     display: flex;
@@ -72,7 +72,7 @@
     gap: 14px;
 }
 
-/* ── Boutons Slay / Stay — carrés, flux normal ────────────────── */
+/* ── Boutons Slay / Stay - carrés, flux normal ────────────────── */
 .action-buttons-col {
     display: flex;
     flex-direction: column;

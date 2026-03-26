@@ -1,48 +1,111 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import {useState, useEffect} from 'react'
+import {useSocket} from './hooks/useSocket'
 import Lobby from './components/lobby/Lobby'
-import CardDemo from './components/card/CardDemo'
-import GameBoard from "./components/gameBoard/GameBoard.jsx";
+import GameBoard from './components/gameBoard/GameBoard'
+import RoundSummary from './components/roundSummary/RoundSummary'
+import Victory from './components/victory/Victory'
+import './App.css'
 
-const DEMO_CARDS = [
-  { id: '1', type: 'number',   value: 7 },
-  { id: '2', type: 'number',   value: 12 },
-  { id: '3', type: 'action',   value: 'freeze' },
-  { id: '4', type: 'action',   value: 'flip3' },
-  { id: '5', type: 'action',   value: 'second_chance' },
-  { id: '6', type: 'modifier', value: 'x2',  label: '×2' },
-  { id: '7', type: 'modifier', value: '+4',  label: '+4' },
-]
+export default function App() {
+    const {emit, on, off} = useSocket()
 
-/* Pour appeler l'écran des scores et l'écran de victoire
-{view === 'roundSummary' && gameState && (
-            <RoundSummary
-                gameState={gameState}
-                isHost={isHost}
-                myId={myId}
-                roundNumber={roundNumber}
-                onContinue={handleContinue}
-            />
-        )}
+    const [view, setView] = useState('lobby')
+    const [gameState, setGameState] = useState(null)
+    const [myId, setMyId] = useState(null)
+    const [isHost, setIsHost] = useState(false)
+    const [winnerIds, setWinnerIds] = useState([])
+    const [roundNumber, setRoundNumber] = useState(1)
 
-        {view === 'victory' && gameState && (
-            <Victory
-                gameState={gameState}
-                winnerIds={winnerIds}
-                myId={myId}
-                isHost={isHost}
-                onPlayAgain={handlePlayAgain}
-                onLobby={handleLobby}
-            />
-        )}
- */
+    useEffect(() => {
+        const onGameStateUpdate = (gameState) => {
+            setGameState(gameState)
+            if (gameState.status === 'finished') return // géré par game-finished
 
-function App() {
-  return <Lobby />
+            const roundPhase = gameState.round?.phase
+            if (roundPhase === 'dealing' || roundPhase === 'playing') {
+                setView('game')
+            } else if (roundPhase === 'scoring' || roundPhase === 'ended') {
+                setView('roundSummary')
+            }
+        }
+
+        const onGameStarted = (gameState) => {
+            setGameState(gameState)
+            setRoundNumber(1)
+            setView('game')
+        }
+
+        const onGameFinished = ({winners}) => {
+            setWinnerIds(Array.isArray(winners) ? winners : [winners])
+            setView('victory')
+        }
+
+        on('game-state-update', onGameStateUpdate)
+        on('game-started', onGameStarted)
+        on('game-finished', onGameFinished)
+
+        return () => {
+            off('game-state-update', onGameStateUpdate)
+            off('game-started', onGameStarted)
+            off('game-finished', onGameFinished)
+        }
+    }, [on, off])
+
+    const handleGameReady = ({playerId, host}) => {
+        setMyId(playerId)
+        setIsHost(host)
+    }
+
+    const handleContinue = () => {
+        // Le host déclenche la manche suivante
+        emit('next-round', {gameId: gameState?.id})
+        setRoundNumber(n => n + 1)
+    }
+
+    const handleLobby = () => {
+        setView('lobby')
+        setGameState(null)
+        setMyId(null)
+        setIsHost(false)
+        setWinnerIds([])
+        setRoundNumber(1)
+    }
+
+    // ── Rendu ──────────────────────────────────────────────────
+    return (
+        <>
+            {view === 'lobby' && (
+                <Lobby onGameReady={handleGameReady}/>
+            )}
+
+            {view === 'game' && gameState && (
+                <GameBoard
+                    gameState={gameState}
+                    myId={myId}
+                />
+            )}
+
+            {view === 'roundSummary' && gameState && (
+                <RoundSummary
+                    gameState={gameState}
+                    isHost={isHost}
+                    myId={myId}
+                    roundNumber={roundNumber}
+                    onContinue={handleContinue}
+                />
+            )}
+
+            {view === 'victory' && gameState && (
+                <Victory
+                    gameState={gameState}
+                    winnerIds={winnerIds}
+                    myId={myId}
+                    isHost={isHost}
+                    onPlayAgain={() => {
+                    }}  // non implémenté côté serveur pour l'instant
+                    onLobby={handleLobby}
+                />
+            )}
+        </>
+    )
 }
-
-
-export default App
