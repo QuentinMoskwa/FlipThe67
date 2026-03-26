@@ -9,18 +9,6 @@ export function filterToModifierCards(cards) {
 }
 
 /**
- * Retourne les IDs des joueurs encore actifs dans le round,
- * en excluant optionnellement un joueur (ex : le joueur courant).
- *
- * @param {Round} round
- * @param {string} [excludePlayerId]
- * @returns {string[]}
- */
-export function getActivePlayerIds(round, excludePlayerId) {
-    return round.activePlayerIds.filter(id => id !== excludePlayerId)
-}
-
-/**
  * Retire un joueur de la liste des joueurs actifs du round.
  * Mute activePlayerIds directement.
  *

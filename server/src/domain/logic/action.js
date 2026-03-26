@@ -8,7 +8,7 @@
 
 import {CardType, ActionKind} from '../constants.js'
 import {drawCard} from '../deck.js'
-import {getActivePlayerIds, removeFromActive} from "../utils/utils.js"
+import {removeFromActive} from "../utils/utils.js"
 import {isBust, isFlipSeven} from "./playerState.js"
 import {computeRoundScore} from "./scoring.js"
 
@@ -26,7 +26,6 @@ export function applyFreeze(round, targetPlayerId) {
 
     if (playerState.hasBusted || playerState.hasStayed) return
 
-    // playerState.roundScore = calculateRoundScore(playerState)
     playerState.hasStayed = true
     removeFromActive(round, targetPlayerId)
 }

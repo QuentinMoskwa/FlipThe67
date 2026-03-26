@@ -4,6 +4,21 @@ import PlayerArea from '../playerArea/PlayerArea.jsx'
 import {useSocket} from '../../hooks/useSocket.js'
 import './GameBoard.css'
 
+// ─── Normalisation des cartes action ─────────────────────────
+const ACTION_VALUE_MAP = { flipThree: 'flip3', secondChance: 'second_chance' }
+function normalizeCard(card) {
+    if (card?.type !== 'action') return card
+    return { ...card, value: ACTION_VALUE_MAP[card.value] ?? card.value }
+}
+
+// ─── Résultats de pioche ──────────────────────────────────────
+const DRAW_RESULT_CONFIG = {
+    bust:      { label: 'BUST !',    color: '#e74c3c', glow: 'rgba(231,76,60,0.4)' },
+    flipSeven: { label: 'FLIP 7 !',  color: '#f1c40f', glow: 'rgba(241,196,15,0.4)' },
+    action:    { label: 'ACTION',    color: '#f59e0b', glow: 'rgba(245,158,11,0.3)' },
+    normal:    null,
+}
+
 function computeSlots(players, myId) {
     const me = players.find(p => p.id === myId)
     const others = players.filter(p => p.id !== myId)
@@ -27,6 +42,48 @@ const PHASE_LABELS = {
     playing: 'En jeu',
     scoring: 'Scores',
     ended: 'Fin de manche',
+}
+
+// ─── Révélation de la carte piochée ──────────────────────────
+function DrawnCardReveal({ reveal, onDismiss }) {
+    const [flipped,  setFlipped]  = useState(false)
+    const [hiding,   setHiding]   = useState(false)
+
+    useEffect(() => {
+        const flipTimer = setTimeout(() => setFlipped(true), 100)
+        const hideTimer = setTimeout(() => {
+            setHiding(true)
+            setTimeout(onDismiss, 150)
+        }, 1100)
+        return () => { clearTimeout(flipTimer); clearTimeout(hideTimer) }
+    }, [onDismiss])
+
+    const config = DRAW_RESULT_CONFIG[reveal.result] ?? null
+    const card   = normalizeCard(reveal.card)
+
+    return (
+        <div className={`card-reveal-backdrop ${hiding ? 'hiding' : ''}`}>
+            <div className="card-reveal-inner">
+                <p className="card-reveal-player">
+                    {reveal.playerName} pioche
+                </p>
+                <div
+                    className="card-reveal-card"
+                    style={config ? { filter: `drop-shadow(0 0 18px ${config.glow})` } : undefined}
+                >
+                    <Card card={card} faceDown={!flipped} />
+                </div>
+                {config && (
+                    <p
+                        className="card-reveal-label"
+                        style={{ color: config.color }}
+                    >
+                        {config.label}
+                    </p>
+                )}
+            </div>
+        </div>
+    )
 }
 
 // ─── Modal de ciblage ─────────────────────────────────────────
@@ -89,6 +146,8 @@ export default function GameBoard({gameState, myId}) {
     const {emit, on, off} = useSocket()
 
     const [pendingTarget, setPendingTarget] = useState(null)
+    const [drawnCard,    setDrawnCard]    = useState(null)
+    const dismissReveal = useCallback(() => setDrawnCard(null), [])
 
     const slots = computeSlots(players, myId)
     const currentPlayer = players[round?.currentPlayerIndex ?? 0]
@@ -112,12 +171,20 @@ export default function GameBoard({gameState, myId}) {
             setPendingTarget({card, availableTargets})
         }
 
-        on('error', onError)
+        const onCardDrawn = (data) => {
+            // On repart de zéro à chaque nouvelle carte pour éviter les états résiduels
+            setDrawnCard(null)
+            requestAnimationFrame(() => setDrawnCard(data))
+        }
+
+        on('error',                  onError)
         on('action-requires-target', onActionRequiresTarget)
+        on('card-drawn',             onCardDrawn)
 
         return () => {
-            off('error', onError)
+            off('error',                  onError)
             off('action-requires-target', onActionRequiresTarget)
+            off('card-drawn',             onCardDrawn)
         }
     }, [on, off])
 
@@ -238,6 +305,14 @@ export default function GameBoard({gameState, myId}) {
 
     return (
         <div className="gameboard-root">
+
+            {/* Révélation de la carte piochée — visible par tous */}
+            {drawnCard && (
+                <DrawnCardReveal
+                    reveal={drawnCard}
+                    onDismiss={dismissReveal}
+                />
+            )}
 
             {/* Modal de ciblage - affiché uniquement sur le client qui attend */}
             {pendingTarget && (

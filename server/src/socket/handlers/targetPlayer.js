@@ -20,9 +20,6 @@ export function handleTargetPlayer(io, socket) {
         if (round.pendingAction.sourcePlayerId !== playerId)
         return socket.emit("error", { message: "Ce n'est pas ton action." });
 
-        // Valider la cible : elle doit être dans activePlayerIds.
-        // On accepte le self-ciblage (le client peut présenter le joueur lui-même
-        // comme cible valide, notamment pour Freeze sur soi-même).
         if (!round.activePlayerIds.includes(targetPlayerId)) {
             return socket.emit("error", { message: "Cible invalide." });
         }

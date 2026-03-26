@@ -1,7 +1,7 @@
 import { getGame } from "../utils/gameStorage.js";
 import { broadcastGameState } from "../utils/broadcast.js";
 import { GameStatus } from "../../domain/constants.js";
-import { advanceToNextPlayer, finalizeRound } from "../../domain/game/gameEngine.js";
+import { advanceToNextPlayer } from "../../domain/game/gameEngine.js";
 import { handleRoundEnd } from "./playerAction.js";
 import { isRoundOver } from "../../domain/utils/utils.js";
 
@@ -48,14 +48,11 @@ export function handleLeaveGame(io, socket) {
         round.activePlayerIds = round.activePlayerIds.filter(id => id !== playerId);
       }
 
-      // Corriger currentPlayerIndex : si le joueur parti avait un index
       // inférieur ou égal à l'index courant, l'index décale d'un cran.
       if (playerIndex <= round.currentPlayerIndex && round.currentPlayerIndex > 0) {
         round.currentPlayerIndex -= 1;
       }
 
-      // Si c'était son tour et qu'il y a encore des joueurs actifs,
-      // avancer au joueur suivant. Si le round est terminé, le finaliser.
       if (wasMyTurn && game.players.length > 0 && round.phase === 'playing') {
         if (isRoundOver(round)) {
           handleRoundEnd(io, gameId, game);
