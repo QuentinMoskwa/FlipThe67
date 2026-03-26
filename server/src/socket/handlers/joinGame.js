@@ -26,7 +26,7 @@ export function handleJoinGame(io, socket) {
     socket.data.gameId = gameId;
     socket.data.playerId = player.id;
 
-    socket.emit("game-joined", { playerId: player.id });
+    socket.emit("game-joined", { gameId, playerId: player.id });
 
     broadcastGameState(io, gameId);
 

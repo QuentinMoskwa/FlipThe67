@@ -6,8 +6,13 @@ import { Server } from "socket.io";
 import { handleCreateGame } from "./socket/handlers/createGame.js";
 import { handleJoinGame } from "./socket/handlers/joinGame.js";
 import { handleStartGame } from "./socket/handlers/startGame.js";
-import { handlePlayerAction, handleNextRound } from "./socket/handlers/playerAction.js";
+import {
+  handlePlayerAction,
+  handleNextRound,
+} from "./socket/handlers/playerAction.js";
 import { handleTargetPlayer } from "./socket/handlers/targetPlayer.js";
+import { handlePlayerReconnect } from "./socket/handlers/reconnect.js";
+import { handleLeaveGame } from "./socket/handlers/leaveGame.js";
 
 dotenv.config();
 
@@ -38,9 +43,12 @@ io.on("connection", (socket) => {
   handlePlayerAction(io, socket);
   handleNextRound(io, socket);
   handleTargetPlayer(io, socket);
+  handlePlayerReconnect(io, socket);
+  handleLeaveGame(io, socket);
 
   socket.on("disconnect", (reason) => {
     console.log(`[socket] disconnected: ${socket.id} - ${reason}`);
+    // Le joueur reste dans game.players et peut se reconnecter
   });
 });
 

@@ -1,5 +1,5 @@
 import { createPlayer, createGameState } from "../../domain/factories.js";
-import { setGame } from "../utils/gameStorage.js";
+import { setGame, getGame } from "../utils/gameStorage.js";
 import { broadcastGameState } from "../utils/broadcast.js";
 
 // 4 caractères uppercase alphanumériques (sans O/0/I/1 pour la lisibilité)

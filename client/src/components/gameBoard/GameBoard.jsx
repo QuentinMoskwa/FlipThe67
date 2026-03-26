@@ -121,6 +121,33 @@ export default function GameBoard({gameState, myId}) {
         }
     }, [on, off])
 
+    // ── Mise à jour des cibles si un joueur quitte pendant le ciblage ──
+    useEffect(() => {
+        if (!pendingTarget) return
+
+        const activePlayers = players.filter(p => {
+            const state = playerStates[p.id]
+            return p.id !== myId && state && !state.hasBusted && !state.hasStayed
+        })
+
+        // Plus aucune cible disponible → annule le ciblage
+        if (activePlayers.length === 0) {
+            setPendingTarget(null)
+            emit('target-player', { gameId: gameState.id, targetPlayerId: myId })
+            return
+        }
+
+        // Met à jour la liste des cibles disponibles
+        const updatedTargets = pendingTarget.availableTargets.filter(t =>
+            activePlayers.some(p => p.id === t.id)
+        )
+
+        if (updatedTargets.length !== pendingTarget.availableTargets.length) {
+            setPendingTarget(prev => ({ ...prev, availableTargets: updatedTargets }))
+        }
+
+    }, [gameState, pendingTarget, players, playerStates, myId, emit, gameState.id])
+
     // ── Handlers ────────────────────────────────────────────────
     const handleSlay = useCallback(() => {
         if (!canAct) return
@@ -136,6 +163,10 @@ export default function GameBoard({gameState, myId}) {
         emit('target-player', {gameId: gameState.id, targetPlayerId})
         setPendingTarget(null)
     }
+
+    const handleLeaveGame = useCallback(() => {
+        emit('leave-game', {gameId: gameState.id})
+    }, [emit, gameState.id])
 
     // ── Banner ──────────────────────────────────────────────────
     const bannerState = (myState.hasBusted || myState.hasStayed)
@@ -260,6 +291,14 @@ export default function GameBoard({gameState, myId}) {
                     </div>
                     <span className="deck-count">{deckCount} cartes</span>
                 </div>
+
+                <button 
+                    className="btn-leave"
+                    onClick={handleLeaveGame}
+                    title="Quitter la partie"
+                >
+                    Quitter
+                </button>
             </div>
         </div>
     )
