@@ -1,0 +1,314 @@
+/* ── Tokens ──────────────────────────────────────────────── */
+.victory-root {
+    --bg:         #080e1a;
+    --surface:    #101828;
+    --surface-hi: #1a2640;
+    --border: rgba(126, 168, 212, 0.16);
+    --border-hi:  rgba(126,168,212,0.30);
+    --slate:      #7ea8d4;
+    --slate-hi:   #a3c2e8;
+    --slate-lo:   #3e6490;
+    --frost:      #e8f0f8;
+    --frost-dim:  #8aaac8;
+    --gold:       #c9a84c;
+    --gold-dim:   #8a6e2a;
+    --radius:     10px;
+    --radius-sm:  7px;
+    --font-title: 'Cormorant Garamond', Georgia, serif;
+    --font-body:  'DM Sans', system-ui, sans-serif;
+    --font-mono:  'DM Mono', monospace;
+}
+
+/* ── Plein écran ─────────────────────────────────────────── */
+.victory-root {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 16px;
+    overflow: hidden;
+}
+
+/* Halo central derrière le panel */
+.victory-root::before {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(126,168,212,0.06) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+/* ── Particules de fond ──────────────────────────────────── */
+.victory-particles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.victory-particle {
+    position: absolute;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: rgba(126,168,212,0.18);
+    animation: particleDrift linear infinite;
+    user-select: none;
+}
+
+@keyframes particleDrift {
+    from { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    to   { transform: translateY(-20px) rotate(360deg); opacity: 0; }
+}
+
+/* ── Panel ───────────────────────────────────────────────── */
+.victory-panel {
+    position: relative;
+    z-index: 1;
+    width: min(480px, 100%);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.7);
+    animation: victoryIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes victoryIn {
+    from { opacity: 0; transform: scale(0.88) translateY(32px); }
+    to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+
+/* ── Hero ────────────────────────────────────────────────── */
+.victory-hero {
+    padding: 36px 32px 28px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(126,168,212,0.04) 0%, transparent 100%);
+}
+
+.victory-crown {
+    font-size: 2.4rem;
+    margin-bottom: 12px;
+    animation: crownBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+}
+
+@keyframes crownBounce {
+    from { opacity: 0; transform: scale(0.4) rotate(-15deg); }
+    to   { opacity: 1; transform: scale(1)   rotate(0deg); }
+}
+
+.victory-title {
+    font-family: var(--font-title);
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: var(--frost);
+    margin: 0 0 6px;
+    line-height: 1.1;
+}
+
+.victory-winner-name {
+    font-family: var(--font-title);
+    font-size: 2.8rem;
+    font-weight: 600;
+    color: var(--slate-hi);
+    margin: 0 0 8px;
+    line-height: 1;
+    animation: nameReveal 0.4s ease 0.5s both;
+}
+
+@keyframes nameReveal {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Cas égalité */
+.victory-tie-badge {
+    display: inline-block;
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--slate-lo);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    margin-bottom: 8px;
+}
+
+.victory-winner-score {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    color: var(--slate);
+}
+
+/* ── Classement ──────────────────────────────────────────── */
+.victory-leaderboard {
+    padding: 20px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.victory-lb-title {
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--slate-lo);
+    margin-bottom: 4px;
+}
+
+.victory-lb-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: rgba(255,255,255,0.02);
+    animation: lbRowIn 0.3s ease both;
+}
+
+.victory-lb-row:nth-child(2) { animation-delay: 0.06s; }
+.victory-lb-row:nth-child(3) { animation-delay: 0.12s; }
+.victory-lb-row:nth-child(4) { animation-delay: 0.18s; }
+.victory-lb-row:nth-child(5) { animation-delay: 0.24s; }
+.victory-lb-row:nth-child(6) { animation-delay: 0.30s; }
+
+@keyframes lbRowIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+.victory-lb-row.is-winner {
+    border-color: rgba(126,168,212,0.3);
+    background: rgba(126,168,212,0.05);
+}
+
+.victory-lb-rank {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--slate-lo);
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.victory-lb-rank.rank-1 { color: var(--slate-hi); }
+.victory-lb-rank.rank-2 { color: var(--frost-dim); }
+.victory-lb-rank.rank-3 { color: var(--slate-lo); }
+
+.victory-lb-name {
+    flex: 1;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--frost);
+}
+
+.victory-lb-name.is-me {
+    color: var(--slate-hi);
+}
+
+.victory-lb-score {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--frost);
+}
+
+.victory-lb-score.is-winner-score {
+    color: var(--slate-hi);
+}
+
+/* ── Footer ──────────────────────────────────────────────── */
+.victory-footer {
+    padding: 16px 28px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+}
+
+.victory-btn-again {
+    flex: 1;
+    padding: 11px;
+    border: 1px solid var(--border-hi);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--frost);
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.victory-btn-again:hover {
+    border-color: var(--slate);
+    background: rgba(126,168,212,0.07);
+}
+
+.victory-btn-lobby {
+    flex: 1;
+    padding: 11px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--frost-dim);
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+}
+
+.victory-btn-lobby:hover {
+    border-color: var(--border-hi);
+    color: var(--frost);
+}
+
+.victory-canvas {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.hand {
+    display: inline-block;
+    animation: floatHand 0.3s ease-in-out infinite;
+}
+
+.flipped {
+    transform: scaleX(-1);
+}
+
+@keyframes floatHand {
+    0% {
+        transform: translateY(0) scaleX(var(--flip, 1));
+    }
+    50% {
+        transform: translateY(-6px) scaleX(var(--flip, 1));
+    }
+    100% {
+        transform: translateY(0) scaleX(var(--flip, 1));
+    }
+}
+
+/* gérer le flip proprement avec variable */
+.hand {
+    --flip: 1;
+}
+
+.hand.flipped {
+    --flip: -1;
+}
+
+.hand:last-child {
+    animation-delay: 0.5s;
+}
