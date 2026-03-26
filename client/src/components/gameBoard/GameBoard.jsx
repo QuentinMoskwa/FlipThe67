@@ -127,7 +127,7 @@ export default function GameBoard({gameState, myId}) {
 
         const activePlayers = players.filter(p => {
             const state = playerStates[p.id]
-            return p.id !== myId && state && !state.hasBusted && !state.hasStayed
+            return state && !state.hasBusted && !state.hasStayed
         })
 
         // Plus aucune cible disponible → annule le ciblage

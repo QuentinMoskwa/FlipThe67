@@ -44,15 +44,14 @@ function computeScoreForStayedPlayers(round) {
  * que pendant le PLAYING (choix du joueur).
  *
  * Flux :
- *   ACTION   → resolveActionCard → computeScoreForStayedPlayers
+ *   ACTION → resolveActionCard → computeScoreForStayedPlayers
  *   NUMBER / MODIFIER → push → isBust → isFlipSeven → computeRoundScore
  *
  * @param {Round}  round
  * @param {string} playerId
- * @param {string} [targetPlayerId] - Cible d'une ActionCard (fourni par le client)
  * @returns {{ roundOver: boolean, flipSeven: boolean }}
  */
-export function processSlay(round, playerId, targetPlayerId) {
+export function processSlay(round, playerId) {
     const playerState = round.playerStates[playerId];
     const card = drawCard(round.deck, round.discardPile);
 
