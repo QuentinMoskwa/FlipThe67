@@ -208,7 +208,7 @@ export default function GameBoard({gameState, myId}) {
     return (
         <div className="gameboard-root">
 
-            {/* Modal de ciblage — affiché uniquement sur le client qui attend */}
+            {/* Modal de ciblage - affiché uniquement sur le client qui attend */}
             {pendingTarget && (
                 <TargetModal
                     card={pendingTarget.card}
@@ -242,7 +242,7 @@ export default function GameBoard({gameState, myId}) {
                     <div className="phase-banner-dot"/>
                     <span>{PHASE_LABELS[phase] ?? 'En jeu'}</span>
                     {bannerTurnText && (
-                        <span className="phase-banner-turn">— {bannerTurnText}</span>
+                        <span className="phase-banner-turn">- {bannerTurnText}</span>
                     )}
                 </div>
 

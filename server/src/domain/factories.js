@@ -16,6 +16,7 @@ import {
     RoundPhase,
     GameStatus,
 } from './constants.js'
+import {generateGameCode} from "./utils/utils.js";
 
 // ─── Card ─────────────────────────────────────────────────────────────────────
 
@@ -177,5 +178,6 @@ export function createRound(players, deck, startingPlayerIndex) {
  */
 export function createGameState(players) {
     const scores = Object.fromEntries(players.map(p => [p.id, 0]))
-    return new GameState(crypto.randomUUID(), players, scores)
+    const gameId = generateGameCode()
+    return new GameState(gameId, players, scores)
 }

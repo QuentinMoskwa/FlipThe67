@@ -1,5 +1,9 @@
 import {CardType} from "../constants.js";
 
+// 4 caractères uppercase alphanumériques (sans O/0/I/1 pour la lisibilité)
+const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+const CODE_LENGTH = 5
+
 export function filterToNumberCards(cards) {
     return cards.filter(c => c.type === CardType.NUMBER)
 }
@@ -62,4 +66,12 @@ export function getOrderedPlayers(players, startingPlayerIndex) {
  */
 export function isRoundOver(round) {
     return round.activePlayerIds.length === 0
+}
+
+export function generateGameCode() {
+    let code = ''
+    for (let i = 0; i < CODE_LENGTH; i++) {
+        code += CODE_CHARS.charAt(Math.floor(Math.random() * CODE_CHARS.length))
+    }
+    return code
 }
