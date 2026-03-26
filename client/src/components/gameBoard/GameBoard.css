@@ -49,6 +49,22 @@
 .player-slot-left  .player-area { transform: rotate(90deg); }
 .player-slot-right .player-area { transform: rotate(-90deg); }
 
+
+/* éviter le décalage */
+.player-slot-top    .player-area-cards-stack,
+.player-slot-left   .player-area-cards-stack,
+.player-slot-right  .player-area-cards-stack {
+    align-items: center;
+    width: 540px;
+}
+
+.player-slot-top    .player-area-cards,
+.player-slot-left   .player-area-cards,
+.player-slot-right  .player-area-cards {
+    justify-content: center;
+    width: 540px;
+}
+
 /* ── Wrapper bottom : PlayerArea + boutons en flex normal ────── */
 /* On ne center PAS le wrapper mais son contenu - la PlayerArea + boutons
    forment une seule unité centrée dans le slot */

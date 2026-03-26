@@ -17,7 +17,7 @@
 .player-area-cards-stack {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: 8px;
 }
 
@@ -25,13 +25,14 @@
 .player-area-cards {
     display: flex;
     gap: 6px;
-    flex-wrap: nowrap;      /* Pas de retour à la ligne - on contrôle via max-width */
-    justify-content: center;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
     align-items: center;
-    max-width: 540px;       /* Exactement 7 cartes + leurs gaps */
-    overflow-x: auto;       /* Sécurité si > 7 cartes pour une raison inattendue */
+    width: 540px;  
+    overflow-x: hidden;
     scrollbar-width: none;
 }
+
 .player-area-cards::-webkit-scrollbar { display: none; }
 
 /* Modificateurs légèrement réduits pour ne pas déborder */
