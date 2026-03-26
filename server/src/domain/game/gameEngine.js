@@ -25,7 +25,7 @@ import {evaluateVictory} from "../logic/victory.js";
 
 /**
  * Calcule le score des joueurs gelés par un Freeze.
- * computeRoundScore est idempotent — safe à appeler plusieurs fois.
+ * computeRoundScore est idempotent - safe à appeler plusieurs fois.
  *
  * @param {Round} round
  */
