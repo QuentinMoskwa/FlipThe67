@@ -1,10 +1,9 @@
-import {useEffect, useCallback} from 'react'
+import {useEffect, useCallback, useState} from 'react'
 import {Card} from '../card/Card.jsx'
 import PlayerArea from '../playerArea/PlayerArea.jsx'
 import {useSocket} from '../../hooks/useSocket.js'
 import './GameBoard.css'
 
-// ─── Placement des joueurs ────────────────────────────────────
 function computeSlots(players, myId) {
     const me = players.find(p => p.id === myId)
     const others = players.filter(p => p.id !== myId)
@@ -26,23 +25,71 @@ function computeSlots(players, myId) {
 
 const PHASE_LABELS = {
     dealing: 'Distribution',
-    waiting: 'En attente',
+    playing: 'En jeu',
     scoring: 'Scores',
     ended: 'Fin de manche',
 }
 
-// ─── GameBoard ────────────────────────────────────────────────
+// ─── Modal de ciblage ─────────────────────────────────────────
+function TargetModal({card, targets, onSelect}) {
+    return (
+        <div style={{
+            position: 'fixed', inset: 0, zIndex: 100,
+            background: 'rgba(0,0,0,0.7)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+            <div style={{
+                background: '#101828',
+                border: '1px solid rgba(126,168,212,0.3)',
+                borderRadius: 16, padding: '28px 32px',
+                display: 'flex', flexDirection: 'column', gap: 16,
+                minWidth: 280,
+            }}>
+                <p style={{
+                    color: '#a3c2e8',
+                    fontSize: '0.78rem',
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    margin: 0
+                }}>
+                    Choisir une cible
+                </p>
+                <p style={{color: '#e8f0f8', fontSize: '0.9rem', margin: 0}}>
+                    Carte : <strong>{card?.value}</strong>
+                </p>
+                <div style={{display: 'flex', flexDirection: 'column', gap: 8}}>
+                    {targets.map(t => (
+                        <button
+                            key={t.id}
+                            onClick={() => onSelect(t.id)}
+                            style={{
+                                padding: '10px 16px',
+                                background: 'rgba(126,168,212,0.1)',
+                                border: '1px solid rgba(126,168,212,0.25)',
+                                borderRadius: 8,
+                                color: '#e8f0f8',
+                                cursor: 'pointer',
+                                fontSize: '0.88rem',
+                                textAlign: 'left',
+                            }}
+                        >
+                            {t.name}
+                        </button>
+                    ))}
+                </div>
+            </div>
+        </div>
+    )
+}
 
-/**
- * @param {object}    props
- * @param {GameState} props.gameState - état complet reçu du serveur via game-state-update
- * @param {string}    props.myId      - playerId du joueur local (géré par App)
- */
 export default function GameBoard({gameState, myId}) {
-    const {phase, round, players} = gameState
+    const {round, players} = gameState
+    const phase = round?.phase ?? 'dealing'
     const playerStates = round?.playerStates ?? {}
 
     const {emit, on, off} = useSocket()
+
+    const [pendingTarget, setPendingTarget] = useState(null)
 
     const slots = computeSlots(players, myId)
     const currentPlayer = players[round?.currentPlayerIndex ?? 0]
@@ -54,35 +101,44 @@ export default function GameBoard({gameState, myId}) {
         && phase === 'playing'
         && !myState.hasBusted
         && !myState.hasStayed
+        && !pendingTarget
 
-    // ── Handlers Socket.io ─────────────────────────────────────
-    const handleSlay = useCallback(() => {
-        if (!canAct) return
-        emit('player-slay', {
-            gameId: gameState.id,
-            playerId: myId,
-            // targetPlayerId : à implémenter quand l'interface de ciblage sera prête
-        })
-    }, [canAct, emit, gameState.id, myId])
-
-    const handleStay = useCallback(() => {
-        if (!canAct) return
-        emit('player-stay', {
-            gameId: gameState.id,
-            playerId: myId,
-        })
-    }, [canAct, emit, gameState.id, myId])
-
-    // Écoute des erreurs serveur (action hors-tour, etc.)
+    // ── Listeners ───────────────────────────────────────────────
     useEffect(() => {
         const onError = ({message, reason}) => {
             console.warn('[GameBoard] action refusée :', message ?? reason)
         }
+
+        const onActionRequiresTarget = ({card, availableTargets}) => {
+            setPendingTarget({card, availableTargets})
+        }
+
         on('error', onError)
-        return () => off('error', onError)
+        on('action-requires-target', onActionRequiresTarget)
+
+        return () => {
+            off('error', onError)
+            off('action-requires-target', onActionRequiresTarget)
+        }
     }, [on, off])
 
-    // ── Banner ─────────────────────────────────────────────────
+    // ── Handlers ────────────────────────────────────────────────
+    const handleSlay = useCallback(() => {
+        if (!canAct) return
+        emit('player-action', {gameId: gameState.id, playerId: myId, action: 'slay'})
+    }, [canAct, emit, gameState.id, myId])
+
+    const handleStay = useCallback(() => {
+        if (!canAct) return
+        emit('player-action', {gameId: gameState.id, playerId: myId, action: 'stay'})
+    }, [canAct, emit, gameState.id, myId])
+
+    const handleSelectTarget = (targetPlayerId) => {
+        emit('target-player', {gameId: gameState.id, targetPlayerId})
+        setPendingTarget(null)
+    }
+
+    // ── Banner ──────────────────────────────────────────────────
     const bannerState = (myState.hasBusted || myState.hasStayed)
         ? 'state-inactive'
         : isMyTurn
@@ -90,16 +146,18 @@ export default function GameBoard({gameState, myId}) {
             : 'state-other-turn'
 
     const bannerTurnText = phase === 'playing'
-        ? myState.hasBusted
-            ? 'Vous avez busté'
-            : myState.hasStayed
-                ? 'Vous avez stay'
-                : isMyTurn
-                    ? <strong>Votre tour</strong>
-                    : <>Tour de <strong>{currentPlayer?.name ?? '…'}</strong></>
+        ? pendingTarget
+            ? <strong>Choisissez une cible</strong>
+            : myState.hasBusted
+                ? 'Vous avez busté'
+                : myState.hasStayed
+                    ? 'Vous avez stay'
+                    : isMyTurn
+                        ? <strong>Votre tour</strong>
+                        : <>Tour de <strong>{currentPlayer?.name ?? '…'}</strong></>
         : null
 
-    // ── Rendu des slots ────────────────────────────────────────
+    // ── Rendu des slots ─────────────────────────────────────────
     const renderSlot = (position) => {
         const player = slots[position]
         if (!player) return null
@@ -151,7 +209,15 @@ export default function GameBoard({gameState, myId}) {
     return (
         <div className="gameboard-root">
 
-            {/* ── Score de manche ── */}
+            {/* Modal de ciblage — affiché uniquement sur le client qui attend */}
+            {pendingTarget && (
+                <TargetModal
+                    card={pendingTarget.card}
+                    targets={pendingTarget.availableTargets}
+                    onSelect={handleSelectTarget}
+                />
+            )}
+
             <div className="scores-panel">
                 <div className="scores-title">Manche en cours</div>
                 {players.map(p => (
@@ -171,7 +237,6 @@ export default function GameBoard({gameState, myId}) {
             {renderSlot('right')}
             {renderSlot('bottom')}
 
-            {/* ── Zone centrale ── */}
             <div className="gameboard-center">
 
                 <div className={`phase-banner ${bannerState}`}>

@@ -67,7 +67,7 @@ export default function Lobby({onGameReady}) {
             setGameCode(prev => prev ?? gameState.id)
         }
 
-        // game-started est géré dans App.jsx — pas besoin de naviguer ici
+        // game-started est géré dans App.jsx - pas besoin de naviguer ici
 
         on('game-created', onGameCreated)
         on('game-joined', onGameJoined)
@@ -182,7 +182,7 @@ export default function Lobby({onGameReady}) {
                 {/* ── Step 2a : menu ── */}
                 {step === 'menu' && (
                     <div className="step-enter">
-                        <p className="menu-greeting">Bonjour, <strong>{username}</strong> — que voulez-vous faire ?</p>
+                        <p className="menu-greeting">Bonjour, <strong>{username}</strong> - que voulez-vous faire ?</p>
                         <div className="menu-options">
                             <div className="menu-option-card" onClick={createGame}>
                                 <div className="menu-option-icon">🃏</div>

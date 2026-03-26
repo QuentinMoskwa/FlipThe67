@@ -21,11 +21,11 @@
     gap: 8px;
 }
 
-/* Ligne de cartes — 7 cartes max : 7×72 + 6×6 = 540px */
+/* Ligne de cartes - 7 cartes max : 7×72 + 6×6 = 540px */
 .player-area-cards {
     display: flex;
     gap: 6px;
-    flex-wrap: nowrap;      /* Pas de retour à la ligne — on contrôle via max-width */
+    flex-wrap: nowrap;      /* Pas de retour à la ligne - on contrôle via max-width */
     justify-content: center;
     align-items: center;
     max-width: 540px;       /* Exactement 7 cartes + leurs gaps */
@@ -40,7 +40,7 @@
     transform-origin: bottom center;
 }
 
-/* Aucune carte — placeholder */
+/* Aucune carte - placeholder */
 .player-area-cards-empty {
     width: 72px;
     height: 104px;

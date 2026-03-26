@@ -6,17 +6,6 @@ import RoundSummary from './components/roundSummary/RoundSummary'
 import Victory from './components/victory/Victory'
 import './App.css'
 
-/**
- * Machine d'états de l'application.
- *
- * Vues :
- *   'lobby'        → Lobby (pseudo, créer/rejoindre, salle d'attente)
- *   'game'         → GameBoard (plateau de jeu)
- *   'roundSummary' → RoundSummary (récap de manche)
- *   'victory'      → Victory (classement final)
- *
- * Transitions pilotées par les événements Socket.io reçus du serveur.
- */
 export default function App() {
     const {emit, on, off} = useSocket()
 
@@ -27,42 +16,27 @@ export default function App() {
     const [winnerIds, setWinnerIds] = useState([])
     const [roundNumber, setRoundNumber] = useState(1)
 
-    // ── Listeners globaux ──────────────────────────────────────
     useEffect(() => {
-        /**
-         * game-state-update : reçu après chaque action.
-         * On pilote la vue selon la phase du round.
-         */
-        const onGameStateUpdate = (gs) => {
-            setGameState(gs)
+        const onGameStateUpdate = (gameState) => {
+            setGameState(gameState)
+            if (gameState.status === 'finished') return // géré par game-finished
 
-            const phase = gs.round?.phase
-
-            if (gs.status === 'finished') return // géré par game-finished
-
-            if (phase === 'dealing' || phase === 'playing') {
+            const roundPhase = gameState.round?.phase
+            if (roundPhase === 'dealing' || roundPhase === 'playing') {
                 setView('game')
-            } else if (phase === 'scoring' || phase === 'ended') {
+            } else if (roundPhase === 'scoring' || roundPhase === 'ended') {
                 setView('roundSummary')
             }
         }
 
-        /**
-         * game-started : le host a lancé la partie.
-         * On bascule directement sur le GameBoard.
-         */
-        const onGameStarted = (gs) => {
-            setGameState(gs)
+        const onGameStarted = (gameState) => {
+            setGameState(gameState)
             setRoundNumber(1)
             setView('game')
         }
 
-        /**
-         * game-finished : un joueur a atteint 200 pts.
-         */
-        const onGameFinished = ({winners, gameState: gs}) => {
-            if (gs) setGameState(gs)
-            setWinnerIds(winners)
+        const onGameFinished = ({winners}) => {
+            setWinnerIds(Array.isArray(winners) ? winners : [winners])
             setView('victory')
         }
 
@@ -77,31 +51,15 @@ export default function App() {
         }
     }, [on, off])
 
-    // ── Callbacks remontés depuis Lobby ────────────────────────
-
-    /**
-     * Appelé quand le joueur rejoint ou crée une partie.
-     * Stocke myId et isHost pour les vues suivantes.
-     */
     const handleGameReady = ({playerId, host}) => {
         setMyId(playerId)
         setIsHost(host)
     }
 
-    // ── Actions depuis RoundSummary ────────────────────────────
-
     const handleContinue = () => {
         // Le host déclenche la manche suivante
         emit('next-round', {gameId: gameState?.id})
         setRoundNumber(n => n + 1)
-    }
-
-    // ── Actions depuis Victory ─────────────────────────────────
-
-    const handlePlayAgain = () => {
-        emit('restart-game', {gameId: gameState?.id})
-        setRoundNumber(1)
-        setWinnerIds([])
     }
 
     const handleLobby = () => {
@@ -143,7 +101,8 @@ export default function App() {
                     winnerIds={winnerIds}
                     myId={myId}
                     isHost={isHost}
-                    onPlayAgain={handlePlayAgain}
+                    onPlayAgain={() => {
+                    }}  // non implémenté côté serveur pour l'instant
                     onLobby={handleLobby}
                 />
             )}
