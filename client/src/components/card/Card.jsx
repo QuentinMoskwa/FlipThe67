@@ -10,7 +10,7 @@ const TYPE_CONFIG = {
         border: '#f59e0b',
     },
     // SecondChance reçoit son propre style rose
-    second_chance: {
+    secondChance: {
         bg: 'linear-gradient(135deg, #9d174d, #831843)',
         border: '#f472b6',
     },
@@ -21,9 +21,9 @@ const TYPE_CONFIG = {
 }
 
 const ACTION_VALUES = {
-    freeze:        { icon: '❄', value: 'FREEZE' },
-    flip3:         { icon: '×3', value: 'FLIP 3' },
-    second_chance: { icon: '2ND', value: 'CHANCE' },
+    freeze:        { icon: '❄',   value: 'FREEZE'  },
+    flipThree:     { icon: '×3',  value: 'FLIP 3'  },
+    secondChance:  { icon: '2ND', value: 'CHANCE'  },
 }
 
 const MODIFIER_VALUES = {
@@ -35,24 +35,10 @@ const MODIFIER_VALUES = {
     '+10': { value: '+10' },
 }
 
-// ─── Normalisation des valeurs d'action ──────────────────────
-// Le backend émet 'flipThree'/'secondChance'.
-// Les clés internes de Card sont 'flip3'/'second_chance'.
-// On normalise ici une fois pour toutes — aucun appelant n'a besoin d'un ACTION_VALUE_MAP.
-const ACTION_VALUE_MAP = {
-    flipThree:    'flip3',
-    secondChance: 'second_chance',
-}
-
-function normalizeActionValue(card) {
-    if (card?.type !== 'action') return card
-    return { ...card, value: ACTION_VALUE_MAP[card.value] ?? card.value }
-}
 
 function CardFront({ card }) {
-    card = normalizeActionValue(card)
     // SecondChance a son propre style visuel
-    const configKey = card.value === 'second_chance' ? 'second_chance' : card.type
+    const configKey = card.value === 'secondChance' ? 'secondChance' : card.type
     const cardConfig = TYPE_CONFIG[configKey] ?? TYPE_CONFIG.number
 
     const renderContent = () => {
