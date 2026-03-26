@@ -41,7 +41,6 @@ function computeScoreForStayedPlayers(round) {
 
 /**
  * Traite l'action Slay (Hit) d'un joueur : pioche une carte et résout son effet.
- * Utilisé aussi bien pendant le DEALING (une carte par joueur sans choix)
  * que pendant le PLAYING (choix du joueur).
  *
  * Flux :
@@ -144,31 +143,6 @@ export function advanceToNextPlayer(round, players) {
     }
 }
 
-/**
- * Phase DEALING : distribue une carte à chaque joueur dans l'ordre de jeu.
- * Réutilise processSlay pour garantir une logique de pioche identique
- * entre le deal et le playing (bust, Flip 7, ActionCards).
- *
- * @param {GameState} gameState
- * @returns {{ roundOver: boolean, flipSeven: boolean }}
- */
-export function runDealingPhase(gameState) {
-    const round = gameState.round
-    round.phase = RoundPhase.DEALING
-
-    const orderedPlayers = getOrderedPlayers(gameState.players, round.startingPlayerIndex)
-
-    for (const player of orderedPlayers) {
-        const playerState = round.playerStates[player.id]
-        if (playerState.hasStayed || playerState.hasBusted) continue
-
-        const { roundOver, flipSeven } = processSlay(round, player.id, undefined)
-        if (roundOver) return { roundOver: true, flipSeven }
-    }
-
-    round.phase = RoundPhase.PLAYING
-    return { roundOver: false, flipSeven: false }
-}
 
 /**
  * Phase SCORING : pousse les cartes des joueurs dans discardPile,

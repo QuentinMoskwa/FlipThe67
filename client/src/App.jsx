@@ -22,7 +22,7 @@ export default function App() {
             if (gameState.status === 'finished') return // géré par game-finished
 
             const roundPhase = gameState.round?.phase
-            if (roundPhase === 'dealing' || roundPhase === 'playing') {
+            if (roundPhase === 'playing') {
                 setView('game')
             } else if (roundPhase === 'scoring' || roundPhase === 'ended') {
                 setView('roundSummary')

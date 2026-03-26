@@ -87,7 +87,7 @@ export class PlayerRoundState {
 export class Round {
 
     constructor(startingPlayerIndex, deck, playerStates, activePlayerIds) {
-        this.phase = RoundPhase.DEALING
+        this.phase = RoundPhase.PLAYING
         this.startingPlayerIndex = startingPlayerIndex
         this.currentPlayerIndex = startingPlayerIndex
         this.deck = deck
