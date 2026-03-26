@@ -1,42 +1,6 @@
-import {useMemo} from 'react'
+import {useMemo, useRef} from 'react'
 import './Victory.css'
-
-// ─── Particules de fond ────────────────────────────────────
-
-const NUMS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
-
-function Particles() {
-    const particles = useMemo(() => (
-        Array.from({length: 16}, (_, i) => ({
-            id: i,
-            label: NUMS[Math.floor(Math.random() * NUMS.length)],
-            left: `${5 + Math.random() * 90}%`,
-            duration: `${6 + Math.random() * 10}s`,
-            delay: `${Math.random() * 6}s`,
-            size: `${12 + Math.random() * 14}px`,
-        }))
-    ), [])
-
-    return (
-        <div className="victory-particles">
-            {particles.map(p => (
-                <span
-                    key={p.id}
-                    className="victory-particle"
-                    style={{
-                        left: p.left,
-                        bottom: '-30px',
-                        fontSize: p.size,
-                        animationDuration: p.duration,
-                        animationDelay: p.delay,
-                    }}
-                >
-          {p.label}
-        </span>
-            ))}
-        </div>
-    )
-}
+import {useCardCanvas} from "../../hooks/useCardCanvas.js";
 
 // ─── Helpers ───────────────────────────────────────────────
 
@@ -80,6 +44,8 @@ function buildLeaderboard(players, scores, winnerIds) {
  * @param {Function}  props.onLobby     - callback "Retour au lobby"
  */
 export default function Victory({gameState, winnerIds, myId, isHost, onPlayAgain, onLobby}) {
+    const canvasRef = useRef(null)
+    useCardCanvas(canvasRef)
     const {players, scores} = gameState
 
     const leaderboard = useMemo(
@@ -97,28 +63,30 @@ export default function Victory({gameState, winnerIds, myId, isHost, onPlayAgain
 
     return (
         <div className="victory-root">
-            <Particles/>
-
+            <canvas ref={canvasRef} className="victory-canvas" />
             <div className="victory-panel">
 
                 {/* ── Hero ── */}
                 <div className="victory-hero">
+
                     <div className="victory-crown">
-                        {iAmWinner ? '★' : '◇'}
+                        <span className="hand flipped">🫴</span>
+                        {iAmWinner ? '😏' : '🤪'}
+                        <span className="hand">🫴</span>
                     </div>
 
-                    <div className="victory-title">
-                        {iAmWinner ? 'Vous avez gagné !' : 'Partie terminée'}
-                    </div>
+                    <div className="victory-winner-name">{winnerNames}</div>
 
                     {isTie && (
                         <div className="victory-tie-badge">Égalité</div>
                     )}
 
-                    <div className="victory-winner-name">{winnerNames}</div>
-
                     <div className="victory-winner-score">
                         {winnerScore} pts
+                    </div>
+
+                    <div className="victory-title">
+                        {iAmWinner ? 'Vous avez gagné !' : 'Vous avez perdu !'}
                     </div>
                 </div>
 
@@ -132,7 +100,7 @@ export default function Victory({gameState, winnerIds, myId, isHost, onPlayAgain
                             className={`victory-lb-row ${isWinner ? 'is-winner' : ''}`}
                         >
                             <div className={`victory-lb-rank rank-${rank}`}>
-                                {rank === 1 ? '①' : rank === 2 ? '②' : rank === 3 ? '③' : `${rank}.`}
+                                {rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}.`}
                             </div>
 
                             <div className={`victory-lb-name ${player.id === myId ? 'is-me' : ''}`}>
