@@ -1,18 +1,5 @@
 /* ── Tokens ──────────────────────────────────────────────────── */
 .gameboard-root {
-    --bg:         #080e1a;
-    --bg-mid:     #0d1524;
-    --surface:    #101828;
-    --surface-hi: #1a2640;
-    --slate:      #7ea8d4;
-    --slate-hi:   #a3c2e8;
-    --slate-lo:   #3e6490;
-    --frost:      #e8f0f8;
-    --frost-dim:  #8aaac8;
-    --border:     rgba(126,168,212,0.14);
-    --border-hi:  rgba(126,168,212,0.30);
-    --danger:     #c0392b;
-    --success:    #27ae60;
     --radius:     12px;
     --radius-sm:  8px;
     --font-title: 'DM Sans', system-ui, sans-serif;
@@ -102,7 +89,7 @@
 
 .btn-action-square.slay {
     background: var(--slate);
-    color: var(--bg);
+    color: var(--frost);
     border-color: transparent;
     box-shadow: 0 4px 16px rgba(126,168,212,0.25);
 }
@@ -167,7 +154,7 @@
 
 .phase-banner.state-my-turn {
     border-color: rgba(126,168,212,0.4);
-    color: var(--slate-hi);
+    color: var(--frost);
 }
 .phase-banner.state-my-turn .phase-banner-dot {
     background: var(--slate-hi);
@@ -212,7 +199,7 @@
     font-size: 0.62rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--slate-lo);
+    color: var(--frost);
     font-family: var(--font-mono);
 }
 
@@ -226,7 +213,7 @@
 .deck-stack-shadow {
     position: absolute;
     border-radius: 10px;
-    background: var(--surface);
+    background: var(--navy);
     border: 1px solid var(--border);
 }
 
@@ -310,7 +297,7 @@
     bottom: 20px;
     right: 20px;
     padding: 10px 16px;
-    background: var(--danger);
+    background: var(--navy);
     color: var(--frost);
     border: none;
     border-radius: var(--radius-sm);

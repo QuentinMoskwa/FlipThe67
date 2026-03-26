@@ -9,7 +9,7 @@
   --accent-border: rgba(170, 59, 255, 0.5);
   --social-bg: rgba(244, 243, 236, 0.5);
   --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+          rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
@@ -42,7 +42,7 @@
     --accent-border: rgba(192, 132, 252, 0.5);
     --social-bg: rgba(47, 48, 58, 0.5);
     --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+            rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
   }
 
   #social .button-icon {
@@ -106,4 +106,106 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+
+/* ── Design tokens globaux ────────────────────────────────────
+   Déclarés sur :root → tous les composants en héritent sans
+   avoir besoin d'un bridge scoped. Chaque thème surcharge
+   directement sur [data-theme="id"].
+───────────────────────────────────────────────────────────── */
+
+:root {
+  /* Ocean (défaut) */
+  --bg:         #080e1a;
+  --bg-mid:     #0d1524;
+  --bg-light:   #121e30;
+  --surface:    #101828;
+  --surface-hi: #1a2640;
+
+  --slate:      #7ea8d4;
+  --slate-hi:   #a3c2e8;
+  --slate-lo:   #3e6490;
+
+  --frost:      #e8f0f8;
+  --frost-dim:  #8aaac8;
+
+  --border:     rgba(126,168,212,0.14);
+  --border-hi:  rgba(126,168,212,0.30);
+  --danger:     #c0392b;
+  --success:    #27ae60;
+  --navy:       #1a2f4a;
+
+  --radius:     12px;
+  --radius-sm:  8px;
+  --font-title: 'DM Sans', system-ui, sans-serif;
+  --font-body:  'DM Sans', system-ui, sans-serif;
+  --font-mono:  'DM Mono', monospace;
+}
+
+[data-theme="ocean"] {
+  --bg:         #080e1a;
+  --bg-mid:     #0d1524;
+  --bg-light:   #121e30;
+  --surface:    #101828;
+  --surface-hi: #1a2640;
+  --slate:      #7ea8d4;
+  --slate-hi:   #a3c2e8;
+  --slate-lo:   #3e6490;
+  --frost:      #e8f0f8;
+  --frost-dim:  #8aaac8;
+  --border:     rgba(126,168,212,0.14);
+  --border-hi:  rgba(126,168,212,0.30);
+  --danger:     #c0392b;
+  --navy:       #1a2f4a;
+}
+
+[data-theme="aqua"] {
+  --bg:         #0a212b;
+  --bg-mid:     #10404f;
+  --bg-light:   #155060;
+  --surface:    #113c4a;
+  --surface-hi: #1a5060;
+  --slate:      #71ADB5;
+  --slate-hi:   #9cccd4;
+  --slate-lo:   #2e7a86;
+  --frost:      #D8DFE2;
+  --frost-dim:  #9ab0b8;
+  --border:     rgba(145,177,182,0.53);
+  --border-hi:  rgba(113,173,181,0.32);
+  --danger:     #c04040;
+  --navy:       #0a2a38;
+}
+
+[data-theme="shrek"] {
+  --bg:         #2a3028;
+  --bg-mid:     #323830;
+  --bg-light:   #3c443a;
+  --surface:    #303830;
+  --surface-hi: #3e4a3c;
+  --slate:      #A1BC98;
+  --slate-hi:   #c0d4b8;
+  --slate-lo:   #778873;
+  --frost:      #F1F3E0;
+  --frost-dim:  #D2DCB6;
+  --border:     rgba(161,188,152,0.16);
+  --border-hi:  rgba(161,188,152,0.32);
+  --danger:     #b84040;
+  --navy:       #1e2a1c;
+}
+
+[data-theme="retro"] {
+  --bg:         rgba(197,59,10,0.8);
+  --bg-mid:     #720008;
+  --bg-light:   #88000a;
+  --surface:    #753a0a;
+  --surface-hi: #7e000a;
+  --slate:      #D53E0F;
+  --slate-hi:   #e8603a;
+  --slate-lo:   #c64e1a;
+  --frost:      #EED9B9;
+  --frost-dim:  #d4b888;
+  --border:     rgba(238,217,185,0.65);
+  --border-hi:  rgba(152,141,137,0.68);
+  --danger:     #ff6060;
+  --navy:       #5E0006;
 }
