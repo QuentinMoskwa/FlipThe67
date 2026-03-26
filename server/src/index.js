@@ -20,7 +20,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 const corsOptions = {
-  origin: ["http://localhost:5173", process.env.CORS_ORIGIN],
+  origin: ["http://localhost:5173", process.env.CORS_ORIGIN || "*"],
   methods: ["GET", "POST"],
 };
 
@@ -53,6 +53,5 @@ io.on("connection", (socket) => {
 });
 
 httpServer.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server listening on:`);
-  console.log(`  http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
