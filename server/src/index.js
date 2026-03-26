@@ -13,6 +13,7 @@ import {
 import { handleTargetPlayer } from "./socket/handlers/targetPlayer.js";
 import { handlePlayerReconnect } from "./socket/handlers/reconnect.js";
 import { handleLeaveGame } from "./socket/handlers/leaveGame.js";
+import {handleRestartGame} from "./socket/handlers/restartGame.js";
 
 dotenv.config();
 
@@ -45,6 +46,7 @@ io.on("connection", (socket) => {
   handleTargetPlayer(io, socket);
   handlePlayerReconnect(io, socket);
   handleLeaveGame(io, socket);
+  handleRestartGame(io, socket)
 
   socket.on("disconnect", (reason) => {
     console.log(`[socket] disconnected: ${socket.id} - ${reason}`);

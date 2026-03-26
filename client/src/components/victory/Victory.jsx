@@ -123,11 +123,11 @@ export default function Victory({gameState, winnerIds, myId, isHost, onPlayAgain
                 <div className="victory-footer">
                     {isHost && (
                         <button className="victory-btn-again" onClick={onPlayAgain}>
-                            Rejouer
+                            Rejouer la partie
                         </button>
                     )}
                     <button className="victory-btn-lobby" onClick={onLobby}>
-                        Retour au logoby
+                        Retour au menu
                     </button>
                 </div>
 
