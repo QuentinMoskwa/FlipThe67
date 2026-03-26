@@ -125,7 +125,7 @@ export function addSecondChance(round, targetPlayerId, card) {
  * @param {string} [targetPlayerId] - Le joueur ciblé (optionnel, défini par le client)
  */
 export function resolveActionCard(round, card, sourcePlayerId, targetPlayerId) {
-    const actives = getActivePlayerIds(round, sourcePlayerId)
+    const actives = round.activePlayerIds
 
     const effectiveTargetId = (actives.length === 0 || !targetPlayerId)
         ? sourcePlayerId

@@ -76,7 +76,7 @@ export function handlePlayerAction(io, socket) {
       const { roundOver, needsTarget, card } = processSlay(round, playerId);
 
       if (needsTarget) {
-        const actives = round.activePlayerIds.filter((id) => id !== playerId);
+        const actives = round.activePlayerIds
         const effectiveTargets = actives.length > 0 ? actives : [playerId];
 
         broadcastGameState(io, gameId);
