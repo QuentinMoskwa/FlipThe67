@@ -1,5 +1,6 @@
 import {useEffect, useCallback, useState} from 'react'
 import {Card} from '../card/Card.jsx'
+import RulesButton from '../rulesButton/RulesButton.jsx'
 import PlayerArea from '../playerArea/PlayerArea.jsx'
 import TargetModal from '../targetModal/TargetModal.jsx'
 import DrawnCardReveal from '../drawnCardReveal/DrawnCardReveal.jsx'
@@ -199,6 +200,7 @@ export default function GameBoard({gameState, myId}) {
 
     return (
         <div className="gameboard-root">
+            <RulesButton />
 
             {/* Révélation de la carte piochée — visible par tous */}
             {drawnCard && (

@@ -1,0 +1,6 @@
+.icon-btn.rules-btn {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 150;
+}
