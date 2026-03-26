@@ -48,6 +48,21 @@ export function handleNextRound(io, socket) {
   });
 }
 
+function beforeRoundEnd(roundOver, io, gameId, game, round) {
+  if (roundOver) {
+    broadcastGameState(io, gameId)
+    game.round.phase = RoundPhase.SCORING
+    setTimeout(() => {
+      handleRoundEnd(io, gameId, game);
+    }, 2500)
+    return;
+  }
+
+  advanceToNextPlayer(round, game.players);
+  broadcastGameState(io, gameId);
+  return;
+}
+
 // ─── Action joueur (slay / stay) ──────────────────────────────────────────────
 export function handlePlayerAction(io, socket) {
   socket.on("player-action", ({ gameId, action }) => {
@@ -111,28 +126,14 @@ export function handlePlayerAction(io, socket) {
         return;
       }
 
-      if (roundOver) {
-        handleRoundEnd(io, gameId, game);
-        return;
-      }
-
-      advanceToNextPlayer(round, game.players);
-      broadcastGameState(io, gameId);
-      return;
+      beforeRoundEnd(roundOver, io, gameId, game, round);
     }
 
     // ── Stay ────────────────────────────────────────────────────────────────
     if (action === "stay") {
       const { roundOver } = processStay(round, playerId);
 
-      if (roundOver) {
-        handleRoundEnd(io, gameId, game);
-        return;
-      }
-
-      advanceToNextPlayer(round, game.players);
-      broadcastGameState(io, gameId);
-      return;
+      beforeRoundEnd(roundOver, io, gameId, game, round);
     }
 
     socket.emit("error", { message: `Action inconnue : ${action}` });
