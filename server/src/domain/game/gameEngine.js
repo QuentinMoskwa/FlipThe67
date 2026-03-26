@@ -91,9 +91,11 @@ export function processSlay(round, playerId, targetPlayerId) {
 
     // NUMBER ou MODIFIER
     playerState.cards.push(card);
+
     isBust(playerState, round.discardPile);
 
     if (playerState.hasBusted) {
+        round.discardPile.push(playerState.cards.pop());
         computeRoundScore(playerState);
         removeFromActive(round, playerId);
         return {

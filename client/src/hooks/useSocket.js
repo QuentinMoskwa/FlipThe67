@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { io } from 'socket.io-client'
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001'
@@ -35,9 +35,16 @@ export function useSocket() {
     }
   }, [socket])
 
-  const emit = (event, data) => socket.emit(event, data)
-  const on   = (event, cb)   => socket.on(event, cb)
-  const off  = (event, cb)   => socket.off(event, cb)
+  // ── Stabiliser emit / on / off ────────────────────────────
+  // Sans useMemo, ces arrow functions sont recréées à chaque render.
+  // Comme elles finissent dans des deps de useEffect, ça provoquerait
+  // un cleanup + re-registration de listeners à chaque setState — race
+  // condition si un event arrive pendant le gap entre les deux.
+  const { emit, on, off } = useMemo(() => ({
+    emit: (event, data) => socket.emit(event, data),
+    on:   (event, cb)   => socket.on(event, cb),
+    off:  (event, cb)   => socket.off(event, cb),
+  }), [socket])  // socket est le singleton → référence stable → memo jamais recalculé
 
   return { socket, connected, emit, on, off }
 }
