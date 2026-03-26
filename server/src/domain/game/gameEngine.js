@@ -59,6 +59,20 @@ export function processSlay(round, playerId, targetPlayerId) {
     if (card.type === CardType.ACTION) {
         // Freeze et FlipThree nécessitent une cible
         if ( card.value === ActionKind.FREEZE || card.value === ActionKind.FLIP_THREE) {
+            // Vérifie si d'autres joueurs actifs existent (excluant la source)
+            const otherActives = round.activePlayerIds.filter(id => id !== playerId)
+
+            if (otherActives.length === 0) {
+                // Dernier joueur actif : résolution immédiate sur soi-même
+                resolveActionCard(round, card, playerId, undefined)
+                computeScoreForStayedPlayers(round)
+                return {
+                    roundOver: isRoundOver(round),
+                    flipSeven: false,
+                    needsTarget: false,
+                    card,
+                }
+            }
             // Stocker l'action en attente le temps que le joueur choississe sa cible
             round.pendingAction = { card, sourcePlayerId: playerId };
             return { roundOver: false, flipSeven: false, needsTarget: true, card };
