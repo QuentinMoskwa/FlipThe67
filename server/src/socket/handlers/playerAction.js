@@ -5,7 +5,6 @@ import {
     processSlay,
     processStay,
     advanceToNextPlayer,
-    runDealingPhase,
     finalizeRound,
     closeRound,
 } from "../../domain/game/gameEngine.js";
@@ -28,14 +27,6 @@ export function handleNextRound(io, socket) {
         if (gameOver) {
             broadcastGameState(io, gameId);
             io.to(gameId).emit("game-finished", {winners});
-            return;
-        }
-
-        const {roundOver} = runDealingPhase(game);
-
-        if (roundOver) {
-            finalizeRound(game.round, game);
-            handleRoundEnd(io, gameId, game);
             return;
         }
 
