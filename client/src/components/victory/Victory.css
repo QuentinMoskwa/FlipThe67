@@ -271,3 +271,44 @@
     border-color: var(--border-hi);
     color: var(--frost);
 }
+
+.victory-canvas {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.hand {
+    display: inline-block;
+    animation: floatHand 0.3s ease-in-out infinite;
+}
+
+.flipped {
+    transform: scaleX(-1);
+}
+
+@keyframes floatHand {
+    0% {
+        transform: translateY(0) scaleX(var(--flip, 1));
+    }
+    50% {
+        transform: translateY(-6px) scaleX(var(--flip, 1));
+    }
+    100% {
+        transform: translateY(0) scaleX(var(--flip, 1));
+    }
+}
+
+/* gérer le flip proprement avec variable */
+.hand {
+    --flip: 1;
+}
+
+.hand.flipped {
+    --flip: -1;
+}
+
+.hand:last-child {
+    animation-delay: 0.5s;
+}
