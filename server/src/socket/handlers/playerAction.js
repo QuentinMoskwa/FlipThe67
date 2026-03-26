@@ -10,29 +10,51 @@ import {
   closeRound,
 } from "../../domain/game/gameEngine.js";
 
+// ─── Fin de round ──────────────────────────────────────────────────────────────
 export function handleRoundEnd(io, gameId, game) {
-  const { gameOver, winners } = closeRound(game);
-
-  if (gameOver) {
-    broadcastGameState(io, gameId);
-    io.to(gameId).emit("game-over", { winners });
-    return;
-  }
-
-  const { roundOver: dealRoundOver } = runDealingPhase(game);
-  if (dealRoundOver) {
-    finalizeRound(game.round, game);
-    closeRound(game);
-  }
-
+  finalizeRound(game.round, game);
   broadcastGameState(io, gameId);
 }
 
+// ─── Manche suivante ──────────────────────────────────────────────────────────
+export function handleNextRound(io, socket) {
+  socket.on("next-round", ({ gameId }) => {
+    const game = getGame(gameId);
+    if (!game)
+      return socket.emit("error", { message: "Partie introuvable." });
+    if (game.hostId !== socket.data.playerId)
+      return socket.emit("error", {
+        message: "Seul le host peut lancer la manche suivante.",
+      });
+
+    const { gameOver, winners } = closeRound(game);
+
+    if (gameOver) {
+      broadcastGameState(io, gameId);
+      io.to(gameId).emit("game-finished", { winners });
+      return;
+    }
+
+    const { roundOver } = runDealingPhase(game);
+
+    if (roundOver) {
+      // Cas rare : Flip 7 ou bust pendant le dealing
+      handleRoundEnd(io, gameId, game);
+      return;
+    }
+
+    game.round.phase = RoundPhase.PLAYING;
+    broadcastGameState(io, gameId);
+  });
+}
+
+// ─── Action joueur (slay / stay) ──────────────────────────────────────────────
 export function handlePlayerAction(io, socket) {
   socket.on("player-action", ({ gameId, action }) => {
     const game = getGame(gameId);
 
-    if (!game) return socket.emit("error", { message: "Partie introuvable." });
+    if (!game)
+      return socket.emit("error", { message: "Partie introuvable." });
     if (game.status !== GameStatus.PLAYING)
       return socket.emit("error", { message: "La partie n'est pas en cours." });
 
@@ -58,23 +80,18 @@ export function handlePlayerAction(io, socket) {
         message: "Tu ne peux plus jouer ce round.",
       });
 
+    // ── Slay ────────────────────────────────────────────────────────────────
     if (action === "slay") {
-      const { roundOver, flipSeven, needsTarget, card } = processSlay(
-        round,
-        playerId,
-      );
+      const { roundOver, needsTarget, card } = processSlay(round, playerId);
 
-      // Carte action nécessitant une cible donc on suspend et on demande au client de choisir une cible
       if (needsTarget) {
-        const availableTargets = round.activePlayerIds.length > 0 ? targets : [playerId];
+        const actives = round.activePlayerIds.filter((id) => id !== playerId);
+        const effectiveTargets = actives.length > 0 ? actives : [playerId];
 
-        // Broadcast pour que tout le monde voie la carte piochée
         broadcastGameState(io, gameId);
-
-        // Demande de cible uniquement au joueur qui a pioché
         socket.emit("action-requires-target", {
           card,
-          availableTargets: availableTargets.map((id) => ({
+          availableTargets: effectiveTargets.map((id) => ({
             id,
             name: game.players.find((p) => p.id === id)?.name,
           })),
@@ -83,7 +100,6 @@ export function handlePlayerAction(io, socket) {
       }
 
       if (roundOver) {
-        finalizeRound(round, game);
         handleRoundEnd(io, gameId, game);
         return;
       }
@@ -93,12 +109,11 @@ export function handlePlayerAction(io, socket) {
       return;
     }
 
-    // ── Stay ───────────────────────────────────────────────
+    // ── Stay ────────────────────────────────────────────────────────────────
     if (action === "stay") {
       const { roundOver } = processStay(round, playerId);
 
       if (roundOver) {
-        finalizeRound(round, game);
         handleRoundEnd(io, gameId, game);
         return;
       }
