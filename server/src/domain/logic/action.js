@@ -9,6 +9,8 @@
 import {CardType, ActionKind} from '../constants.js'
 import {drawCard} from '../deck.js'
 import {getActivePlayerIds, removeFromActive} from "../utils/utils.js"
+import {isBust, isFlipSeven} from "./playerState.js"
+import {computeRoundScore} from "./scoring.js"
 
 // ─── Résolution des cartes Action ─────────────────────────────────────────────
 
@@ -66,11 +68,26 @@ export function applyFlipThree(round, targetPlayerId, resolveAction) {
             }
         } else {
             playerState.cards.push(card)
-            // TODO : Méthode qui fait ce check et met à jour hasBusted / hasFlipSeven en conséquence, pour éviter de dupliquer la logique dans plusieurs fonctions
-            // if (isBust(playerState) || isFlipSeven(playerState)) {
-            //     break
-            // }
-            // TODO : Sinon méthode qui ajoute la carte au deck du joueur
+
+            isBust(playerState, round.discardPile)
+
+            if (playerState.hasBusted) {
+                // La carte qui a causé le bust ne reste pas dans la main
+                round.discardPile.push(playerState.cards.pop())
+                computeRoundScore(playerState)
+                removeFromActive(round, targetPlayerId)
+                break
+            }
+
+
+            if (isFlipSeven(playerState.cards)) {
+                playerState.hasFlipSeven = true
+                computeRoundScore(playerState)
+                round.activePlayerIds = []
+                break
+            }
+
+            computeRoundScore(playerState)
         }
     }
 
@@ -113,19 +130,19 @@ export function resolveActionCard(round, card, sourcePlayerId, targetPlayerId) {
     const effectiveTargetId = (actives.length === 0 || !targetPlayerId)
         ? sourcePlayerId
         : targetPlayerId
-        switch (card.value) {
-            case ActionKind.FREEZE:
-                applyFreeze(round, effectiveTargetId)
-                round.discardPile.push(card)
-                break
+    switch (card.value) {
+        case ActionKind.FREEZE:
+            applyFreeze(round, effectiveTargetId)
+            round.discardPile.push(card)
+            break
 
-            case ActionKind.FLIP_THREE:
-                applyFlipThree(round, effectiveTargetId, resolveActionCard)
-                round.discardPile.push(card)
-                break
+        case ActionKind.FLIP_THREE:
+            applyFlipThree(round, effectiveTargetId, resolveActionCard)
+            round.discardPile.push(card)
+            break
 
-            case ActionKind.SECOND_CHANCE:
-                addSecondChance(round, effectiveTargetId, card)
-                break
-        }
+        case ActionKind.SECOND_CHANCE:
+            addSecondChance(round, effectiveTargetId, card)
+            break
+    }
 }

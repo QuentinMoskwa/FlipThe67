@@ -24,7 +24,6 @@ function computeSlots(players, myId) {
 }
 
 const PHASE_LABELS = {
-    dealing: 'Distribution',
     playing: 'En jeu',
     scoring: 'Scores',
     ended: 'Fin de manche',
@@ -84,7 +83,7 @@ function TargetModal({card, targets, onSelect}) {
 
 export default function GameBoard({gameState, myId}) {
     const {round, players} = gameState
-    const phase = round?.phase ?? 'dealing'
+    const phase = round?.phase ?? 'playing'
     const playerStates = round?.playerStates ?? {}
 
     const {emit, on, off} = useSocket()
@@ -213,7 +212,7 @@ export default function GameBoard({gameState, myId}) {
     return (
         <div className="gameboard-root">
 
-            {/* Modal de ciblage — affiché uniquement sur le client qui attend */}
+            {/* Modal de ciblage - affiché uniquement sur le client qui attend */}
             {pendingTarget && (
                 <TargetModal
                     card={pendingTarget.card}
@@ -247,7 +246,7 @@ export default function GameBoard({gameState, myId}) {
                     <div className="phase-banner-dot"/>
                     <span>{PHASE_LABELS[phase] ?? 'En jeu'}</span>
                     {bannerTurnText && (
-                        <span className="phase-banner-turn">— {bannerTurnText}</span>
+                        <span className="phase-banner-turn">- {bannerTurnText}</span>
                     )}
                 </div>
 

@@ -24,6 +24,14 @@ function applyBust(playerState, discardPile) {
             discardPile.push(playerState.cards.splice(scIndex, 1)[0])
         }
 
+        // Défausser la carte numérotée qui a causé le bust
+        for (let i = playerState.cards.length - 1; i >= 0; i--) {
+            if (playerState.cards[i].type === CardType.NUMBER) {
+                discardPile.push(playerState.cards.splice(i, 1)[0])
+                break
+            }
+        }
+
         playerState.hasSecondChance = false
         return
     }

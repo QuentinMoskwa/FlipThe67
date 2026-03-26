@@ -39,14 +39,12 @@ export const ModifierKind = Object.freeze({
 
 /**
  * Phases possibles d'un round.
- * - dealing  : distribution initiale d'une carte par joueur
  * - playing  : les joueurs jouent à tour de rôle (hit / stay)
  * - scoring  : calcul et affichage des scores de la manche
  * - ended    : la manche est terminée, en attente de la suivante
  * @enum {string}
  */
 export const RoundPhase = Object.freeze({
-    DEALING: 'dealing',
     PLAYING: 'playing',
     SCORING: 'scoring',
     ENDED:   'ended',

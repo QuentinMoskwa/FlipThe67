@@ -27,7 +27,7 @@ export default function App() {
             }
 
             const roundPhase = gameState.round?.phase
-            if (roundPhase === 'dealing' || roundPhase === 'playing') {
+            if (roundPhase === 'playing') {
                 setView('game')
             } else if (roundPhase === 'scoring' || roundPhase === 'ended') {
                 setView('roundSummary')
