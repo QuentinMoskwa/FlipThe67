@@ -1,12 +1,10 @@
 import { getGame } from "../utils/gameStorage.js";
 import { broadcastGameState } from "../utils/broadcast.js";
-import { GameStatus, RoundPhase } from "../../domain/constants.js";
 import { resolveActionCard } from "../../domain/logic/action.js";
 import { computeRoundScore } from "../../domain/logic/scoring.js";
 import { isRoundOver } from "../../domain/utils/utils.js";
 import {
   advanceToNextPlayer,
-  finalizeRound,
 } from "../../domain/game/gameEngine.js";
 import { handleRoundEnd } from "./playerAction.js";
 
@@ -46,7 +44,6 @@ export function handleTargetPlayer(io, socket) {
         }
 
         if (isRoundOver(round)) {
-        finalizeRound(round, game);
         handleRoundEnd(io, gameId, game);
         return;
         }
