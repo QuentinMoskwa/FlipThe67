@@ -19,7 +19,12 @@ export default function App() {
     useEffect(() => {
         const onGameStateUpdate = (gameState) => {
             setGameState(gameState)
-            if (gameState.status === 'finished') return // géré par game-finished
+            if (gameState.status === 'finished') return
+
+            // Recalculer isHost à chaque update (important après reconnexion)
+            if (myId) {
+                setIsHost(gameState.hostId === myId)
+            }
 
             const roundPhase = gameState.round?.phase
             if (roundPhase === 'dealing' || roundPhase === 'playing') {
@@ -40,16 +45,30 @@ export default function App() {
             setView('victory')
         }
 
+        const onReconnectSuccess = ({gameId, playerId}) => {
+            console.log('[App] Player reconnected:', {gameId, playerId})
+            setMyId(playerId)
+        }
+
+        const onLeftGame = () => {
+            console.log('[App] Successfully left game')
+            handleLobby()
+        }
+
         on('game-state-update', onGameStateUpdate)
         on('game-started', onGameStarted)
         on('game-finished', onGameFinished)
+        on('reconnect-success', onReconnectSuccess)
+        on('left-game', onLeftGame)
 
         return () => {
             off('game-state-update', onGameStateUpdate)
             off('game-started', onGameStarted)
             off('game-finished', onGameFinished)
+            off('reconnect-success', onReconnectSuccess)
+            off('left-game', onLeftGame)
         }
-    }, [on, off])
+    }, [on, off, myId])
 
     const handleGameReady = ({playerId, host}) => {
         setMyId(playerId)

@@ -15,7 +15,7 @@ export default function Lobby({onGameReady}) {
     const canvasRef = useRef(null)
     useCardCanvas(canvasRef)
 
-    const {connected, emit, on, off} = useSocket()
+    const {connected, emit, on, off, savePlayerSession} = useSocket()
 
     const [step, setStep] = useState('username')
     const [username, setUsername] = useState('')
@@ -44,6 +44,7 @@ export default function Lobby({onGameReady}) {
         if (step !== 'waiting') return
 
         const onGameCreated = ({gameId, playerId}) => {
+            savePlayerSession(gameId, playerId)
             setGameCode(gameId)
             setMyId(playerId)
             setIsHost(true)
@@ -51,7 +52,8 @@ export default function Lobby({onGameReady}) {
             onGameReady?.({playerId, host: true})
         }
 
-        const onGameJoined = ({playerId}) => {
+        const onGameJoined = ({gameId, playerId}) => {
+            savePlayerSession(gameId, playerId)
             setMyId(playerId)
             setLoading(false)
             onGameReady?.({playerId, host: false})
@@ -65,6 +67,11 @@ export default function Lobby({onGameReady}) {
             }))
             setPlayers(playerList)
             setGameCode(prev => prev ?? gameState.id)
+            
+            // Recalculer isHost (important si le host a quitté et qu'un nouveau a été élu)
+            if (myId) {
+                setIsHost(gameState.hostId === myId)
+            }
         }
 
         // game-started est géré dans App.jsx - pas besoin de naviguer ici
@@ -114,6 +121,15 @@ export default function Lobby({onGameReady}) {
 
     const startGame = () => {
         emit('start-game', {gameId: gameCode})
+    }
+
+    const leaveGame = () => {
+        emit('leave-game', {gameId: gameCode})
+        setStep('menu')
+        setGameCode(null)
+        setPlayers([])
+        setIsHost(false)
+        setMyId(null)
     }
 
     const copyCode = useCallback(() => {
@@ -279,12 +295,7 @@ export default function Lobby({onGameReady}) {
                         )}
 
                         <div className="mt-8">
-                            <button className="btn-secondary" onClick={() => {
-                                setStep('menu')
-                                setPlayers([])
-                                setGameCode(null)
-                                setMyId(null)
-                            }}>
+                            <button className="btn-secondary" onClick={leaveGame}>
                                 Quitter la salle
                             </button>
                         </div>

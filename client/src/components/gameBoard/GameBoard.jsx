@@ -138,6 +138,10 @@ export default function GameBoard({gameState, myId}) {
         setPendingTarget(null)
     }
 
+    const handleLeaveGame = useCallback(() => {
+        emit('leave-game', {gameId: gameState.id})
+    }, [emit, gameState.id])
+
     // ── Banner ──────────────────────────────────────────────────
     const bannerState = (myState.hasBusted || myState.hasStayed)
         ? 'state-inactive'
@@ -261,6 +265,14 @@ export default function GameBoard({gameState, myId}) {
                     </div>
                     <span className="deck-count">{deckCount} cartes</span>
                 </div>
+
+                <button 
+                    className="btn-leave"
+                    onClick={handleLeaveGame}
+                    title="Quitter la partie"
+                >
+                    Quitter
+                </button>
             </div>
         </div>
     )
