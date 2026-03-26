@@ -23,7 +23,8 @@ export function handlePlayerReconnect(io, socket) {
       });
     }
 
-    // Réassocier le socket au joueur
+    player.socketId = socket.id;
+
     socket.join(gameId);
     socket.data.gameId = gameId;
     socket.data.playerId = playerId;
@@ -31,7 +32,8 @@ export function handlePlayerReconnect(io, socket) {
     // Confirmer la reconnexion au client
     socket.emit("reconnect-success", { gameId, playerId });
 
-    // Notifier tout le monde que le joueur est revenu
+    // Envoyer le gameState complet au joueur qui revient
+    // (les autres joueurs reçoivent aussi le broadcast pour voir qu'il est revenu)
     broadcastGameState(io, gameId);
 
     console.log(`[reconnect] Player ${playerId} reconnected to game ${gameId}`);

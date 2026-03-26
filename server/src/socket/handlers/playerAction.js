@@ -9,7 +9,17 @@ import {
     closeRound,
 } from "../../domain/game/gameEngine.js";
 
-// ─── Fin de round ──────────────────────────────────────────────────────────────
+// ─── Diffuse la carte piochée à tous les joueurs ───────────────
+// Émis AVANT broadcastGameState pour que la carte soit visible
+// avant que le gameState soit mis à jour côté client.
+function broadcastCardDrawn(io, gameId, game, playerId, card, result) {
+    const playerName = game.players.find(p => p.id === playerId)?.name ?? playerId
+    io.to(gameId).emit('card-drawn', {playerId, playerName, card, result})
+}
+
+// ─── Fin de round ──────────────────────────────────────────────
+// S'arrête à SCORING et broadcast → le frontend bascule sur RoundSummary.
+// closeRound est appelé dans handleNextRound, déclenché par le host.
 export function handleRoundEnd(io, gameId, game) {
   finalizeRound(game.round, game);
   broadcastGameState(io, gameId);
@@ -34,7 +44,6 @@ export function handleNextRound(io, socket) {
       return;
     }
 
-    game.round.phase = RoundPhase.PLAYING;
     broadcastGameState(io, gameId);
   });
 }
@@ -74,6 +83,18 @@ export function handlePlayerAction(io, socket) {
     // ── Slay ────────────────────────────────────────────────────────────────
     if (action === "slay") {
       const { roundOver, needsTarget, card } = processSlay(round, playerId);
+
+            // Déterminer le résultat pour l'animation de révélation côté client
+            const pState = round.playerStates[playerId]
+            const cardResult = needsTarget
+                ? 'action'
+                : pState?.hasBusted
+                    ? 'bust'
+                    : pState?.hasFlipSeven
+                        ? 'flipSeven'
+                        : 'normal'
+
+            broadcastCardDrawn(io, gameId, game, playerId, card, cardResult)
 
       if (needsTarget) {
         const actives = round.activePlayerIds
