@@ -107,8 +107,8 @@
 /* ─── Face arrière ───────────────────────────────── */
 
 .card-back {
-    background: #111827;
-    border-color: #374151;
+    background: var(--navy);
+    border-color: var(--border-hi);
     transform: rotateY(180deg);
     display: flex;
     align-items: center;
@@ -120,9 +120,9 @@
     position: absolute;
     inset: 6px;
     border-radius: 6px;
-    border: 1px solid #1f2937;
+    border: 1px solid var(--border);
     background:
-        repeating-linear-gradient(45deg,
+            repeating-linear-gradient(45deg,
             transparent,
             transparent 4px,
             rgba(255, 255, 255, 0.02) 4px,
@@ -133,7 +133,7 @@
     position: relative;
     font-size: 20px;
     font-weight: 900;
-    color: #374151;
+    color: var(--slate-lo);
     letter-spacing: 0.05em;
     font-family: 'Georgia', serif;
 }
