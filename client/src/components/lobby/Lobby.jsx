@@ -274,7 +274,7 @@ export default function Lobby({onGameReady}) {
                 {step === 'waiting' && (
                     <div className="step-enter">
                         <div className="waiting-header">
-                            <h2>Salle d'attente</h2>
+                            <h2>Logobby</h2>
                             <div className="game-code-badge" onClick={copyCode} title="Copier le code">
                                 <span className="code-label">CODE</span>
                                 <strong>{gameCode ?? '…'}</strong>

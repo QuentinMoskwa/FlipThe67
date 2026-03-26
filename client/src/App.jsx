@@ -120,8 +120,7 @@ export default function App() {
                     winnerIds={winnerIds}
                     myId={myId}
                     isHost={isHost}
-                    onPlayAgain={() => {
-                    }}  // non implémenté côté serveur pour l'instant
+                    onPlayAgain={() => emit('restart-game', { gameId: gameState.id })}
                     onLobby={handleLobby}
                 />
             )}
