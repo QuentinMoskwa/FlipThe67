@@ -24,7 +24,6 @@ function computeSlots(players, myId) {
 }
 
 const PHASE_LABELS = {
-    dealing: 'Distribution',
     playing: 'En jeu',
     scoring: 'Scores',
     ended: 'Fin de manche',
@@ -84,7 +83,7 @@ function TargetModal({card, targets, onSelect}) {
 
 export default function GameBoard({gameState, myId}) {
     const {round, players} = gameState
-    const phase = round?.phase ?? 'dealing'
+    const phase = round?.phase ?? 'playing'
     const playerStates = round?.playerStates ?? {}
 
     const {emit, on, off} = useSocket()

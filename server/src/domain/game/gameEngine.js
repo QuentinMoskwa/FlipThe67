@@ -25,7 +25,7 @@ import {evaluateVictory} from "../logic/victory.js";
 
 /**
  * Calcule le score des joueurs gelés par un Freeze.
- * computeRoundScore est idempotent — safe à appeler plusieurs fois.
+ * computeRoundScore est idempotent - safe à appeler plusieurs fois.
  *
  * @param {Round} round
  */
@@ -41,7 +41,6 @@ function computeScoreForStayedPlayers(round) {
 
 /**
  * Traite l'action Slay (Hit) d'un joueur : pioche une carte et résout son effet.
- * Utilisé aussi bien pendant le DEALING (une carte par joueur sans choix)
  * que pendant le PLAYING (choix du joueur).
  *
  * Flux :
@@ -60,6 +59,20 @@ export function processSlay(round, playerId, targetPlayerId) {
     if (card.type === CardType.ACTION) {
         // Freeze et FlipThree nécessitent une cible
         if ( card.value === ActionKind.FREEZE || card.value === ActionKind.FLIP_THREE) {
+            // Vérifie si d'autres joueurs actifs existent (excluant la source)
+            const otherActives = round.activePlayerIds.filter(id => id !== playerId)
+
+            if (otherActives.length === 0) {
+                // Dernier joueur actif : résolution immédiate sur soi-même
+                resolveActionCard(round, card, playerId, undefined)
+                computeScoreForStayedPlayers(round)
+                return {
+                    roundOver: isRoundOver(round),
+                    flipSeven: false,
+                    needsTarget: false,
+                    card,
+                }
+            }
             // Stocker l'action en attente le temps que le joueur choississe sa cible
             round.pendingAction = { card, sourcePlayerId: playerId };
             return { roundOver: false, flipSeven: false, needsTarget: true, card };
@@ -146,31 +159,6 @@ export function advanceToNextPlayer(round, players) {
     }
 }
 
-/**
- * Phase DEALING : distribue une carte à chaque joueur dans l'ordre de jeu.
- * Réutilise processSlay pour garantir une logique de pioche identique
- * entre le deal et le playing (bust, Flip 7, ActionCards).
- *
- * @param {GameState} gameState
- * @returns {{ roundOver: boolean, flipSeven: boolean }}
- */
-export function runDealingPhase(gameState) {
-    const round = gameState.round
-    round.phase = RoundPhase.DEALING
-
-    const orderedPlayers = getOrderedPlayers(gameState.players, round.startingPlayerIndex)
-
-    for (const player of orderedPlayers) {
-        const playerState = round.playerStates[player.id]
-        if (playerState.hasStayed || playerState.hasBusted) continue
-
-        const { roundOver, flipSeven } = processSlay(round, player.id, undefined)
-        if (roundOver) return { roundOver: true, flipSeven }
-    }
-
-    round.phase = RoundPhase.PLAYING
-    return { roundOver: false, flipSeven: false }
-}
 
 /**
  * Phase SCORING : pousse les cartes des joueurs dans discardPile,

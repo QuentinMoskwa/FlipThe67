@@ -1,13 +1,12 @@
-import { getGame } from "../utils/gameStorage.js";
-import { broadcastGameState } from "../utils/broadcast.js";
-import { GameStatus, RoundPhase } from "../../domain/constants.js";
+import {getGame} from "../utils/gameStorage.js";
+import {broadcastGameState} from "../utils/broadcast.js";
+import {GameStatus, RoundPhase} from "../../domain/constants.js";
 import {
-  processSlay,
-  processStay,
-  advanceToNextPlayer,
-  runDealingPhase,
-  finalizeRound,
-  closeRound,
+    processSlay,
+    processStay,
+    advanceToNextPlayer,
+    finalizeRound,
+    closeRound,
 } from "../../domain/game/gameEngine.js";
 
 // ─── Fin de round ──────────────────────────────────────────────────────────────
@@ -32,14 +31,6 @@ export function handleNextRound(io, socket) {
     if (gameOver) {
       broadcastGameState(io, gameId);
       io.to(gameId).emit("game-finished", { winners });
-      return;
-    }
-
-    const { roundOver } = runDealingPhase(game);
-
-    if (roundOver) {
-      // Cas rare : Flip 7 ou bust pendant le dealing
-      handleRoundEnd(io, gameId, game);
       return;
     }
 

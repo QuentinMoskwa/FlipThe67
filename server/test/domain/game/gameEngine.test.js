@@ -4,7 +4,6 @@ import {
     processStay,
     advanceToNextPlayer,
     finalizeRound,
-    runDealingPhase,
     closeRound,
 } from '../../../src/domain/game/gameEngine.js'
 import { CardType, RoundPhase, GameStatus } from '../../../src/domain/constants.js'
@@ -370,58 +369,6 @@ describe('finalizeRound', () => {
         finalizeRound(round, gameState)
 
         expect(round.discardPile).toContain(card)
-    })
-})
-
-// ─── runDealingPhase ──────────────────────────────────────────────────────────
-
-describe('runDealingPhase', () => {
-    beforeEach(() => vi.clearAllMocks())
-
-    it('passe la phase à DEALING puis PLAYING si aucun round over', () => {
-        const gameState = makeGameState(['p1', 'p2'])
-        drawCard.mockReturnValue(makeNumberCard(3))
-        isBust.mockReturnValue(false)
-        isFlipSeven.mockReturnValue(false)
-
-        runDealingPhase(gameState)
-
-        expect(gameState.round.phase).toBe(RoundPhase.PLAYING)
-    })
-
-    it('distribue une carte à chaque joueur', () => {
-        const gameState = makeGameState(['p1', 'p2'])
-        drawCard.mockReturnValue(makeNumberCard(3))
-        isBust.mockReturnValue(false)
-        isFlipSeven.mockReturnValue(false)
-
-        runDealingPhase(gameState)
-
-        expect(drawCard).toHaveBeenCalledTimes(2)
-    })
-
-    it('retourne roundOver true si Flip 7 pendant le deal', () => {
-        const gameState = makeGameState(['p1', 'p2'])
-        drawCard.mockReturnValue(makeNumberCard(7))
-        isBust.mockReturnValue(false)
-        isFlipSeven.mockReturnValueOnce(true)
-
-        const result = runDealingPhase(gameState)
-
-        expect(result.roundOver).toBe(true)
-        expect(result.flipSeven).toBe(true)
-    })
-
-    it('saute les joueurs déjà bustés ou stayed', () => {
-        const gameState = makeGameState(['p1', 'p2'])
-        gameState.round.playerStates['p1'].hasBusted = true
-        drawCard.mockReturnValue(makeNumberCard(3))
-        isBust.mockReturnValue(false)
-        isFlipSeven.mockReturnValue(false)
-
-        runDealingPhase(gameState)
-
-        expect(drawCard).toHaveBeenCalledTimes(1)
     })
 })
 
