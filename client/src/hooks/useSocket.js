@@ -37,7 +37,10 @@ let _socket = null;
 
 function getSocket() {
   if (!_socket) {
-    _socket = io(SERVER_URL, { autoConnect: true });
+    _socket = io(SERVER_URL, {
+      autoConnect: true,
+      transports: ["websocket"],
+    });
   }
   return _socket;
 }
