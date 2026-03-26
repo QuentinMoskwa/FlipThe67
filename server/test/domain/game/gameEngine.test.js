@@ -99,40 +99,47 @@ describe('processSlay', () => {
     beforeEach(() => vi.clearAllMocks())
 
     describe('carte Action', () => {
-        it('appelle resolveActionCard et retourne roundOver false si des joueurs restent', () => {
+        it('stocke pendingAction et retourne needsTarget true pour Freeze — resolveActionCard pas encore appelé', () => {
             const round = makeRound(['p1', 'p2'])
-            drawCard.mockReturnValue(makeActionCard('freeze'))
+            const card = makeActionCard('freeze')
+            drawCard.mockReturnValue(card)
 
             const result = processSlay(round, 'p1', 'p2')
 
-            expect(resolveActionCard).toHaveBeenCalledWith(round, expect.objectContaining({ type: CardType.ACTION }), 'p1', 'p2')
+            // processSlay suspend l'action et attend le choix de cible du client
+            expect(result.needsTarget).toBe(true)
             expect(result.roundOver).toBe(false)
             expect(result.flipSeven).toBe(false)
+            expect(round.pendingAction).toEqual({ card, sourcePlayerId: 'p1' })
+            // resolveActionCard sera appelé plus tard depuis handleTargetPlayer
+            expect(resolveActionCard).not.toHaveBeenCalled()
         })
 
-        it('détecte un Flip 7 déclenché via FlipThree et vide activePlayerIds', () => {
+        it('stocke pendingAction et retourne needsTarget true pour FlipThree', () => {
             const round = makeRound(['p1', 'p2'])
-            drawCard.mockReturnValue(makeActionCard('flipThree'))
-            resolveActionCard.mockImplementation(() => {
-                round.playerStates['p2'].hasFlipSeven = true
-            })
+            const card = makeActionCard('flipThree')
+            drawCard.mockReturnValue(card)
 
             const result = processSlay(round, 'p1', 'p2')
 
-            expect(result.flipSeven).toBe(true)
-            expect(result.roundOver).toBe(true)
-            expect(round.activePlayerIds).toHaveLength(0)
+            // FlipThree suit le même chemin que Freeze : suspension en attente de cible
+            expect(result.needsTarget).toBe(true)
+            expect(result.roundOver).toBe(false)
+            expect(round.pendingAction).toEqual({ card, sourcePlayerId: 'p1' })
+            expect(resolveActionCard).not.toHaveBeenCalled()
         })
 
-        it('calcule le score des joueurs gelés par Freeze après resolveActionCard', () => {
+        it('calcule le score des joueurs gelés (stayed) après résolution immédiate de SecondChance', () => {
+            // SecondChance est la seule carte Action résolue immédiatement dans processSlay.
+            // Freeze et FlipThree attendent un targetPlayerId via handleTargetPlayer.
             const round = makeRound(['p1', 'p2'])
-            drawCard.mockReturnValue(makeActionCard('freeze'))
-            resolveActionCard.mockImplementation(() => {
-                round.playerStates['p2'].hasStayed = true
-            })
+            round.playerStates['p2'].hasStayed = true
+            drawCard.mockReturnValue(makeActionCard('secondChance'))
+            resolveActionCard.mockImplementation(() => {})
 
-            processSlay(round, 'p1', 'p2')
+            processSlay(round, 'p1')
 
+            // computeScoreForStayedPlayers est appelé après resolveActionCard pour SecondChance
             expect(computeRoundScore).toHaveBeenCalledWith(round.playerStates['p2'])
         })
     })
@@ -167,7 +174,7 @@ describe('processSlay', () => {
             isBust.mockReturnValue(false)
             isFlipSeven.mockReturnValue(false)
 
-            expect(processSlay(round, 'p1')).toEqual({ roundOver: false, flipSeven: false })
+            expect(processSlay(round, 'p1')).toEqual(expect.objectContaining({ roundOver: false, flipSeven: false }))
         })
 
         describe('bust', () => {
@@ -223,7 +230,7 @@ describe('processSlay', () => {
                 isBust.mockReturnValue(false)
                 isFlipSeven.mockReturnValue(true)
 
-                expect(processSlay(round, 'p1')).toEqual({ roundOver: true, flipSeven: true })
+                expect(processSlay(round, 'p1')).toEqual(expect.objectContaining({ roundOver: true, flipSeven: true }))
             })
 
             it('calcule le score avant de vider les actifs', () => {

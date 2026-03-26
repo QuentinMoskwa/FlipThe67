@@ -247,7 +247,7 @@ export default function Lobby({onGameReady}) {
                             <input
                                 className="lobby-input"
                                 type="text"
-                                placeholder="XXXX"
+                                placeholder="XXXXX"
                                 value={joinCode}
                                 onChange={e => {
                                     setJoinCode(e.target.value);
