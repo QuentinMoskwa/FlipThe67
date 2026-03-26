@@ -1,6 +1,9 @@
 import { getGame } from "../utils/gameStorage.js";
 import { broadcastGameState } from "../utils/broadcast.js";
 import { GameStatus } from "../../domain/constants.js";
+import { advanceToNextPlayer, finalizeRound } from "../../domain/game/gameEngine.js";
+import { handleRoundEnd } from "./playerAction.js";
+import { isRoundOver } from "../../domain/utils/utils.js";
 
 /**
  * Handler pour quitter une partie
@@ -20,34 +23,53 @@ export function handleLeaveGame(io, socket) {
 
     // Vérifier que le joueur est dans la partie
     const playerIndex = game.players.findIndex(p => p.id === playerId);
+    if (playerIndex === -1)
+      return socket.emit("error", { message: "Joueur introuvable dans cette partie." });
 
-    // Retirer le joueur
+    const round        = game.round;
+    const wasMyTurn    = round && game.players[round.currentPlayerIndex]?.id === playerId;
+    const wasActive    = round?.activePlayerIds?.includes(playerId) ?? false;
+
+    // ── Retirer le joueur de toutes les structures ────────────
     game.players.splice(playerIndex, 1);
     delete game.scores[playerId];
-    delete game.round?.playerStates[playerId];
-    // retirer du pendingAction si c'était lui la cible
-    if (game.round?.pendingAction?.targetPlayerId === playerId) {
-      delete game.round.pendingAction;
-    }
-    // retirer des activePlayerIds s'il était actif
-    if (game.round?.activePlayerIds) {
-      game.round.activePlayerIds = game.round.activePlayerIds.filter(id => id !== playerId);
+
+    if (round) {
+      delete round.playerStates[playerId];
+
+      // Annuler la pendingAction si ce joueur était impliqué
+      if (round.pendingAction?.sourcePlayerId === playerId ||
+          round.pendingAction?.targetPlayerId === playerId) {
+        round.pendingAction = null;
+      }
+
+      // Retirer des actifs
+      if (wasActive) {
+        round.activePlayerIds = round.activePlayerIds.filter(id => id !== playerId);
+      }
+
+      // Corriger currentPlayerIndex : si le joueur parti avait un index
+      // inférieur ou égal à l'index courant, l'index décale d'un cran.
+      if (playerIndex <= round.currentPlayerIndex && round.currentPlayerIndex > 0) {
+        round.currentPlayerIndex -= 1;
+      }
+
+      // Si c'était son tour et qu'il y a encore des joueurs actifs,
+      // avancer au joueur suivant. Si le round est terminé, le finaliser.
+      if (wasMyTurn && game.players.length > 0 && round.phase === 'playing') {
+        if (isRoundOver(round)) {
+          handleRoundEnd(io, gameId, game);
+        } else {
+          advanceToNextPlayer(round, game.players);
+        }
+      }
     }
 
-    // Si le joueur était le host, élire un nouveau host
+    // ── Gestion du host ────────────────────────────────────────
     if (game.hostId === playerId) {
-      if (game.players.length > 0) {
-        const newHostId = game.players[0].id;
-        game.hostId = newHostId;
-        console.log(
-          `[leave-game] Player ${playerId} was host. New host: ${newHostId}`,
-        );
-      } else {
-        // Plus de joueurs, la partie est vide
-        game.hostId = null;
-        console.log(
-          `[leave-game] Player ${playerId} was the last player. Game is now empty.`,
-        );
+      game.hostId = game.players.length > 0 ? game.players[0].id : null;
+      if (game.hostId) {
+        console.log(`[leave-game] New host: ${game.hostId}`);
       }
     }
 
