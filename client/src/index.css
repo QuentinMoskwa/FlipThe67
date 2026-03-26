@@ -177,7 +177,7 @@ code {
 }
 
 [data-theme="shrek"] {
-  --bg:         #2a3028;
+  --bg:         #2e4127;
   --bg-mid:     #323830;
   --bg-light:   #3c443a;
   --surface:    #303830;
@@ -187,7 +187,7 @@ code {
   --slate-lo:   #778873;
   --frost:      #F1F3E0;
   --frost-dim:  #D2DCB6;
-  --border:     rgba(161,188,152,0.16);
+  --border:     rgba(191, 208, 186, 0.33);
   --border-hi:  rgba(161,188,152,0.32);
   --danger:     #b84040;
   --navy:       #1e2a1c;

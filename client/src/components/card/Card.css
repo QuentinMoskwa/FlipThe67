@@ -1,8 +1,8 @@
 /* ─── Wrapper & flip ─────────────────────────────── */
 
 .card-wrapper {
-    width: 72px;
-    height: 104px;
+    width: 62px;
+    height: 94px;
     perspective: 800px;
     flex-shrink: 0;
 }
@@ -65,7 +65,7 @@
 
 /* Nombres */
 .card-number-value {
-    font-size: 40px;
+    font-size: 30px;
     font-weight: 900;
     color: white;
     font-family: 'Georgia', serif;
